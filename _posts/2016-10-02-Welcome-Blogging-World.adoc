@@ -1,13 +1,13 @@
-= Welcome Blogging World
+= Welcome Blogging World!
 
 :hp-tags: welcome
 
-The idea of blogging has been making its way in my head for some time now.I'm already used to blogging on the internal blog of my company, but the audience is really small...and so is the feedback.
+The idea of blogging has been making its way in my head for some time now. I'm already used to blogging on the internal blog of my company, but the audience is really small...and so is the feedback.
 
 == Who am I?
-By day, I am a UI developer working on multiple stacks going from Swing to Angular 2.0. I am also in charge of the continuous integration in my team.
+By day, I am a UI developer working on multiple stacks going from Swing to Angular 2.0. I am also in charge of the Continuous Integration in my team.
 
-I am interested by a lot of development topics, especially the subjects of Continuous Integration, Continous Delivery, Testing and Clean Coding.
+I am interested in a lot of development topics, especially the subjects of Continuous Integration, Continous Delivery, Testing and Clean Coding.
 
 == What to expect from this blog?
 The main idea behind this blog is to share some thoughts about my readings, or the conferences I saw. I would also like to share some of my experiment. As the title suggests, I see this blog as a notepad, for my future self...and for anyone who might have some interest on what I have to say.
