@@ -6,7 +6,8 @@
   },
   "site": {
     "title": "Pierre Beitz",
-    "description": "Notepad of a Software Engineer"
+    "description": "Notepad of a Software Engineer",
+    "disqus": "pierrebtz.disqus.com"
   },
   "socialnetwork": {
     "twitter": "https://twitter.com/PiBtz",
