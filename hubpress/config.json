@@ -4,7 +4,15 @@
     "repositoryName": "pierrebtz.github.io",
     "branch": "master"
   },
+  "site": {
+    "title": "Pierre Beitz",
+    "description": "Notepad of a Software Engineer"
+  },
+  "socialnetwork": {
+    "twitter": "https://twitter.com/PiBtz",
+    "github": "https://github.com/PierreBtz"
+  },
   "theme": {
-    "name": "Casper"
+    "name": "casper"
   }
 }
