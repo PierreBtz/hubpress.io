@@ -1,0 +1,5 @@
+# draft - how to configure deamon docker on osx
+
+https://github.com/docker/docker/issues/25537
+
+https://docs.docker.com/engine/reference/commandline/dockerd/#/linux-configuration-file
