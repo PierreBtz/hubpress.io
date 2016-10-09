@@ -1,4 +1,82 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 02 Oct 2016 14:13:14 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Welcome Blogging World!]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 09 Oct 2016 18:37:02 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Running fish on Windows 10]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>You may already know that the latest Windows 10 builds offer a bash in Windows. This is a great feature. But what is even more interesting is that Microsoft did not do an emulation of linux commands but they partnered up with Canonical instead and integrated a real Ubuntu image on top of Windows. This means that you can run commands like&#8230;&#8203;apt-get in this bash.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="__any_shell_for_windows">'Any Shell for Windows'</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In other words, this means that potentially, the 'bash for Windows' feature, could be understood like an 'any shell for Windows' feature! I decided to give it a try with fish. <a href="https://fishshell.com/">Fish</a> is an amazing shell a colleague of mine showed me some time ago. I am now using it every day at work and I was missing it at home on my Windows machine. It is really simple to use, it has a powerful autosuggestion engine, and it is easily extensible with scripts&#8230;&#8203;and a lot of people distribute great scripts!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_to_install_fish">How to install fish?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I will assume here that you already know how to install bash for Windows. If not, there are plenty of blogs that have detailed step by step guides. Once you are running bash, it is simply a matter of following the <a href="https://github.com/fish-shell/fish-shell/wiki/Nightly-builds">fish installation instruction for Ubuntu</a>, that is to say:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sudo add-apt-repository ppa:fish-shell/nightly-master
+sudo apt-get update
+sudo apt-get install fish</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you can just type fish in your prompt, and you are done. Unfortunately, next time you will launch an Unix shell from Windows it will have to be a bash. Good news is that it is easy to customize bash startup with the <strong>.bashrc</strong> file. To do this, first go to your unix home. Be careful, when you launch a bash, Windows puts you under your Windows' home (/mnt/c/Users/YourUser) and not under Unix&#8217;s home (~). To be sure, type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd
+nano .bashrc</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then add a the beginning of your .bashrc file the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">if [ -t 1 ]; then
+  exec fish
+fi</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Be careful not to just <strong>exec fish</strong>, you could break some programs and scripts relying on bash.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scripting">Scripting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I installed <a href="https://github.com/fisherman/fisherman">fisherman</a> to manage the scripts of my fish installation. No ad intended, I don&#8217;t have enough feedback on it to give advice yet. Just know that there are other plugin managers out there, like <a href="https://github.com/oh-my-fish/oh-my-fish">oh my fish</a>. Here again, no need to adapt the installation instructions, everything worked as it would on Unix. For instance, I decided to install a useful teleporter script that allows to set labels on directories and jump back and forth:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#install fisherman
+curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs git.io/fisher
+#install the tp script
+fisher install simonrelet/tp-fish-function</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here is the result:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/fishWin10_1.png" alt="result">
+</div>
+</div>
+<div class="paragraph">
+<p>I hope this was helpful. I&#8217;m still new to fish, feel free to drop a comment with tips or useful scripts! Of course, the main focus of the article was on fish, but I&#8217;m pretty sure that you can run any Unix shell you like using the same method.</p>
+</div>
+</div>
+</div>]]></description><link>https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html</guid><category><![CDATA[HowTo]]></category><category><![CDATA[ Windows 10]]></category><category><![CDATA[ Fish]]></category><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Sun, 09 Oct 2016 00:00:00 GMT</pubDate></item><item><title><![CDATA[Welcome Blogging World!]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>The idea of blogging has been making its way in my head for some time now. I&#8217;m already used to blogging on the internal blog of my company, but the audience is really small&#8230;&#8203;and so is the feedback.</p>
