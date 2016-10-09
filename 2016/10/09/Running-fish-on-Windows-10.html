@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Running fish on Windows 10</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://PierreBtz.github.io/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="//PierreBtz.github.io/themes/casper/assets/css/screen.css?v=1476038222523" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+
+    <link rel="canonical" href="https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Pierre Beitz" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Running fish on Windows 10" />
+    <meta property="og:description" content="You may already know that the latest Windows 10 builds offer a bash in Windows. This is a great feature. But what is even more interesting is that Microsoft did not do an emulation of linux commands but they partnered up with Canonical instead and integrated a real Ubuntu image" />
+    <meta property="og:url" content="https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html" />
+    <meta property="article:tag" content="HowTo" />
+    <meta property="article:tag" content=" Windows 10" />
+    <meta property="article:tag" content=" Fish" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Running fish on Windows 10" />
+    <meta name="twitter:description" content="You may already know that the latest Windows 10 builds offer a bash in Windows. This is a great feature. But what is even more interesting is that Microsoft did not do an emulation of linux commands but they partnered up with Canonical instead and integrated a real Ubuntu image" />
+    <meta name="twitter:url" content="https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Pierre Beitz" href="https://PierreBtz.github.io/rss/" />
+</head>
+<body class="post-template tag-How-To tag-Windows-10 tag-Fish nav-closed">
+
+    
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head no-cover">
+    <nav class="main-nav  clearfix">
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+    <article class="post tag-How-To tag-Windows-10 tag-Fish">
+
+        <header class="post-header">
+            <h1 class="post-title">Running fish on Windows 10</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2016-10-09">09 October 2016</time>  on <a href="https://PierreBtz.github.io/tag/How-To/">HowTo</a>, <a href="https://PierreBtz.github.io/tag/Windows-10/"> Windows 10</a>, <a href="https://PierreBtz.github.io/tag/Fish/"> Fish</a>
+            </section>
+        </header>
+
+        <section class="post-content">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>You may already know that the latest Windows 10 builds offer a bash in Windows. This is a great feature. But what is even more interesting is that Microsoft did not do an emulation of linux commands but they partnered up with Canonical instead and integrated a real Ubuntu image on top of Windows. This means that you can run commands like&#8230;&#8203;apt-get in this bash.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="__any_shell_for_windows">'Any Shell for Windows'</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In other words, this means that potentially, the 'bash for Windows' feature, could be understood like an 'any shell for Windows' feature! I decided to give it a try with fish. <a href="https://fishshell.com/">Fish</a> is an amazing shell a colleague of mine showed me some time ago. I am now using it every day at work and I was missing it at home on my Windows machine. It is really simple to use, it has a powerful autosuggestion engine, and it is easily extensible with scripts&#8230;&#8203;and a lot of people distribute great scripts!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_how_to_install_fish">How to install fish?</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I will assume here that you already know how to install bash for Windows. If not, there are plenty of blogs that have detailed step by step guides. Once you are running bash, it is simply a matter of following the <a href="https://github.com/fish-shell/fish-shell/wiki/Nightly-builds">fish installation instruction for Ubuntu</a>, that is to say:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sudo add-apt-repository ppa:fish-shell/nightly-master
+sudo apt-get update
+sudo apt-get install fish</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now you can just type fish in your prompt, and you are done. Unfortunately, next time you will launch an Unix shell from Windows it will have to be a bash. Good news is that it is easy to customize bash startup with the <strong>.bashrc</strong> file. To do this, first go to your unix home. Be careful, when you launch a bash, Windows puts you under your Windows' home (/mnt/c/Users/YourUser) and not under Unix&#8217;s home (~). To be sure, type:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd
+nano .bashrc</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then add a the beginning of your .bashrc file the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">if [ -t 1 ]; then
+  exec fish
+fi</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Be careful not to just <strong>exec fish</strong>, you could break some programs and scripts relying on bash.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scripting">Scripting</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I installed <a href="https://github.com/fisherman/fisherman">fisherman</a> to manage the scripts of my fish installation. No ad intended, I don&#8217;t have enough feedback on it to give advice yet. Just know that there are other plugin managers out there, like <a href="https://github.com/oh-my-fish/oh-my-fish">oh my fish</a>. Here again, no need to adapt the installation instructions, everything worked as it would on Unix. For instance, I decided to install a useful teleporter script that allows to set labels on directories and jump back and forth:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#install fisherman
+curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs git.io/fisher
+#install the tp script
+fisher install simonrelet/tp-fish-function</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here is the result:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/fishWin10_1.png" alt="result">
+</div>
+</div>
+<div class="paragraph">
+<p>I hope this was helpful. I&#8217;m still new to fish, feel free to drop a comment with tips or useful scripts! Of course, the main focus of the article was on fish, but I&#8217;m pretty sure that you can run any Unix shell you like using the same method.</p>
+</div>
+</div>
+</div>
+        </section>
+
+        <footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://PierreBtz.github.io/author/PierreBtz/" style="background-image: url(https://avatars.githubusercontent.com/u/9881659?v&#x3D;3)"><span class="hidden">Pierre Btz's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h4><a href="https://PierreBtz.github.io/author/PierreBtz/">Pierre Btz</a></h4>
+
+                    <p>Read <a href="https://PierreBtz.github.io/author/PierreBtz/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    
+                    
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Running%20fish%20on%20Windows%2010&amp;url=https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+
+        <section class="post-comments">
+          <div id="disqus_thread"></div>
+          <script type="text/javascript">
+          var disqus_shortname = 'pierrebtz'; // required: replace example with your forum shortname
+          /* * * DON'T EDIT BELOW THIS LINE * * */
+          (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+          <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        </section>
+
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="https://PierreBtz.github.io">Pierre Beitz</a> &copy; 2016</section>
+            <section class="poweredby">Proudly published with <a href="http://hubpress.io">HubPress</a></section>
+        </footer>
+
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/jquery.fitvids.js?v=1476038222523"></script>
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/index.js?v=1476038222523"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-85059089-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+</body>
+</html>
