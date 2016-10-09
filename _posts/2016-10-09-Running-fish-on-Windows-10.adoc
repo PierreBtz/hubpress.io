@@ -49,6 +49,6 @@ fisher install simonrelet/tp-fish-function
 
 And here is the result:
 
-image::https://github.com/PierreBtz/pierrebtz.github.io/images/fishWin10_1.png[]
+image::http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/fishWin10_1.png[result]
 
 I hope this was helpful. I'm still new to fish, feel free to drop a comment with tips or useful scripts! Of course, the main focus of the article was on fish, but I'm pretty sure that you can run any Unix shell you like using the same method.
