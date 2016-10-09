@@ -1,0 +1,54 @@
+= Running fish on Windows 10
+
+:hp-tags: HowTo, Windows 10, Fish
+
+You may already know that the latest Windows 10 builds offer a bash in Windows. This is a great feature. But what is even more interesting is that Microsoft did not do an emulation of linux commands but they partnered up with Canonical instead and integrated a real Ubuntu image on top of Windows. This means that you can run commands like...apt-get in this bash.
+
+== 'Any Shell for Windows'
+In other words, this means that potentially, the 'bash for Windows' feature, could be understood like an 'any shell for Windows' feature! I decided to give it a try with fish. https://fishshell.com/[Fish] is an amazing shell a colleague of mine showed me some time ago. I am now using it every day at work and I was missing it at home on my Windows machine. It is really simple to use, it has a powerful autosuggestion engine, and it is easily extensible with scripts...and a lot of people distribute great scripts!
+
+== How to install fish?
+I will assume here that you already know how to install bash for Windows. If not, there are plenty of blogs that have detailed step by step guides. Once you are running bash, it is simply a matter of following the https://github.com/fish-shell/fish-shell/wiki/Nightly-builds[fish installation instruction for Ubuntu], that is to say:
+
+[source,bash]
+----
+sudo add-apt-repository ppa:fish-shell/nightly-master
+sudo apt-get update
+sudo apt-get install fish
+----
+
+Now you can just type fish in your prompt, and you are done. Unfortunately, next time you will launch an Unix shell from Windows it will have to be a bash. Good news is that it is easy to customize bash startup with the *.bashrc* file. To do this, first go to your unix home. Be careful, when you launch a bash, Windows puts you under your Windows' home (/mnt/c/Users/YourUser) and not under Unix's home (~). To be sure, type:
+
+[source,bash]
+----
+cd
+nano .bashrc
+----
+
+Then add a the beginning of your .bashrc file the following:
+
+[source,bash]
+----
+if [ -t 1 ]; then
+  exec fish
+fi
+----
+
+Be careful not to just *exec fish*, you could break some programs and scripts relying on bash.
+
+== Scripting
+I installed fisherman to manage the scripts of my fish installation https://github.com/fisherman/fisherman[fisherman]. No ad intended, I have not enough feedback on it to give advice yet. Just know that there are other plugin managers out there, like https://github.com/oh-my-fish/oh-my-fish[oh my fish]. Here again, no need to adapt the installation instructions, everything worked as it would on Unix. For instance, I decided to install a useful teleporter script that allows to set labels on directories and jump back and forth:
+
+[source,bash]
+----
+#install fisherman
+curl -Lo ~/.config/fish/functions/fisher.fish --create-dirs git.io/fisher
+#install the tp script
+fisher install simonrelet/tp-fish-function
+----
+
+And here is the result:
+
+image::https://github.com/PierreBtz/pierrebtz.github.io/images/fishWin10_1.png[]
+
+I hope this was helpful. I'm still new to fish, feel free to drop a comment with tips or useful scripts! Of course, the main focus of the article was on fish, but I'm pretty sure that you can run any Unix shell you like using the same method.
