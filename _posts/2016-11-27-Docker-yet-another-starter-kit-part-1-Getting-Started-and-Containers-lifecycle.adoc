@@ -16,10 +16,10 @@ Of course, do not hesitate to point any mistake or omission.
 ### OS
 
 OS does not matter anymore.
-Docker is now available natively on Windows 10, OSX and Linux.
+Docker is now available natively on Windows 10 (from 1511 November update, Build 10586), OSX and Linux.
 I use it without any problem on OSX and a debian at work, and on Windows 10 and a Linux Mint at home.
-What I recommand though is to avoid the non native solutions for older OSX and Windows 7.
-My experience with them was just awful: a lot of issues, of instabilities, strange behavior and different behavior on similar machines.
+What I recommand though is to avoid the non native solutions for older OSX and Windows 7/10.
+My experience with them was just awful: a lot of issues, of instabilities as well as some strange behaviors.
 
 ### Let's go!
 
