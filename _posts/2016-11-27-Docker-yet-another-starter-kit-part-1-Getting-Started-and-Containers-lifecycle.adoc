@@ -1,5 +1,7 @@
-:icons: font
 # Docker, yet another starter kit... part 1: Getting Started and Container's lifecycle
+
+:hp-tags: HowTo, Docker
+:hp-image: docker.png
 
 It can be a bit challenging for a developer to enter the container world.
 This series of articles is an answer to a developer wanting to onboard the Docker train.
@@ -63,6 +65,7 @@ You can stop a container using https://docs.docker.com/engine/reference/commandl
 NB: You can also directly send a SIGKILL signal using https://docs.docker.com/engine/reference/commandline/kill/[docker kill].
 It is probably not a good idea if you wish to restart your container.
 You can move from a stopped container to a running container using the docker start command.
+
 
 
 
