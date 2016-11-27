@@ -1,4 +1,4 @@
-# Docker, yet another starter kit... part 1: Getting Started and Container's lifecycle
+# Docker starter kit part 1: Getting Started, Container's lifecycle
 
 :hp-tags: HowTo, Docker
 :hp-image: docker.png
