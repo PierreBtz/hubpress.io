@@ -30,7 +30,7 @@ Go to the https://www.docker.com/products/docker#/windows[official page], and fo
 * https://docs.docker.com/engine/getstarted/step_two/[Images and Containers]
 * https://docs.docker.com/engine/getstarted/step_three/[Run your first image]
 * https://docs.docker.com/engine/getstarted/step_four/[Build your first image]
-* https://docs.docker.com/engine/getstarted/step_six/[Create your Docker Hub account] this part can be skipped if you have access to a private repository
+* https://docs.docker.com/engine/getstarted/step_five/[Create your Docker Hub account] this part can be skipped if you have access to a private repository
 * https://docs.docker.com/engine/getstarted/step_six/[Push and Pull an image] if you are using a private repository, the name of the image becomes $private_repo/docker-whale
 
 In the following, I will assume you have the basic understanding that the tutorial gave you.
