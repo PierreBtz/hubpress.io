@@ -52,10 +52,10 @@ The main states are:
 
 * *created*: your container has been created.
 This means you have created an instance of an image.
+You get to this state by running the command https://docs.docker.com/engine/reference/commandline/create/[docker create]
 
 IMPORTANT: Remember what you saw in the tutorial, an image does not have a state and never changes.
-+
-You get to this state by running the command https://docs.docker.com/engine/reference/commandline/create/[docker create]
+
 * *running*: The container is running which means it has been created (https://docs.docker.com/engine/reference/commandline/create/[docker create]) and started (https://docs.docker.com/engine/reference/commandline/start/[docker start]).
 You can also directly reach this state from an image by running https://docs.docker.com/engine/reference/run/[docker run].
 * *paused*: A paused container is in a frozen state but its main process *has not been stopped* (the SIGTERM signal was not sent from docker to PID1 process).
