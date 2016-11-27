@@ -21,14 +21,14 @@ My experience with them was just awful: a lot of issues, of instabilities, stran
 ### Let's go!
 
 Well, this part will be pretty simple.
-Go to the [official page]https://www.docker.com/products/docker#/windows, and follow the official tutorial:
+Go to the https://www.docker.com/products/docker#/windows[official page], and follow the official tutorial:
 
-* [Installation]https://docs.docker.com/engine/getstarted/step_one/
-* [Images and Containers]https://docs.docker.com/engine/getstarted/step_two/
-* [Run your first image]https://docs.docker.com/engine/getstarted/step_three/
-* [Build your first image]https://docs.docker.com/engine/getstarted/step_four/
-* [Create your Docker Hub account]https://docs.docker.com/engine/getstarted/step_six/ this part can be skipped if you have access to a private repository
-* [Push and Pull an image]https://docs.docker.com/engine/getstarted/step_six/ if you are using a private repository, the name of the image becomes $private_repo/docker-whale
+* https://docs.docker.com/engine/getstarted/step_one/[Installation]
+* https://docs.docker.com/engine/getstarted/step_two/[Images and Containers]
+* https://docs.docker.com/engine/getstarted/step_three/[Run your first image]
+* https://docs.docker.com/engine/getstarted/step_four/[Build your first image]
+* https://docs.docker.com/engine/getstarted/step_six/[Create your Docker Hub account] this part can be skipped if you have access to a private repository
+* https://docs.docker.com/engine/getstarted/step_six/[Push and Pull an image] if you are using a private repository, the name of the image becomes $private_repo/docker-whale
 
 In the following, I will assume you have the basic understanding that the tutorial gave you.
 
@@ -50,17 +50,17 @@ The main states are:
 * *created*: your container has been created.
 This means you have created an instance of an image.
 Remember what you saw in the tutorial, an image does not have a state and never changes.
-You get to this state by running the command [docker create]https://docs.docker.com/engine/reference/commandline/create/
-* *running*: The container is running which means it has been created ([docker create]https://docs.docker.com/engine/reference/commandline/create/) and started ([docker start]https://docs.docker.com/engine/reference/commandline/start/).
-You can also directly reach this state from an image by running [docker run]https://docs.docker.com/engine/reference/run/
+You get to this state by running the command https://docs.docker.com/engine/reference/commandline/create/[docker create]
+* *running*: The container is running which means it has been created (https://docs.docker.com/engine/reference/commandline/create/[docker create]) and started (https://docs.docker.com/engine/reference/commandline/start/[docker start]).
+You can also directly reach this state from an image by running https://docs.docker.com/engine/reference/run/[docker run].
 * *paused*: A paused container is in a frozen state but its main process *has not been stopped* (the SIGTERM signal was not sent from docker to PID1 process).
 The container has not released its ressources (eg memory).
-From a running container you reach this state with the [docker pause](https://docs.docker.com/engine/reference/commandline/pause/).
-It can be unfrozen using the [docker unpause]https://docs.docker.com/engine/reference/commandline/unpause/
+From a running container you reach this state with the https://docs.docker.com/engine/reference/commandline/pause/[docker pause].
+It can be unfrozen using the https://docs.docker.com/engine/reference/commandline/unpause/[docker unpause].
 * *stopped*: When stopping a container, the SIGTERM signal has been sent from docker to the main process.
 After a waiting time (10 seconds by default), the main process will receive a SIGKILL signal.
-You can stop a container using [docker stop](https://docs.docker.com/engine/reference/commandline/stop/).
-NB: You can also directly send a SIGKILL signal using [docker kill](https://docs.docker.com/engine/reference/commandline/kill/).
+You can stop a container using https://docs.docker.com/engine/reference/commandline/stop/[docker stop].
+NB: You can also directly send a SIGKILL signal using https://docs.docker.com/engine/reference/commandline/kill/[docker kill].
 It is probably not a good idea if you wish to restart your container.
 You can move from a stopped container to a running container using the docker start command.
 
