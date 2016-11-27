@@ -3,12 +3,13 @@
 :hp-tags: HowTo, Docker
 :hp-image: docker.png
 
-It can be a bit challenging for a developer to enter the container world.
+Docker is a major change in the way we develop software.
+But it can be a bit challenging for a developer to enter the container world.
 This series of articles is an answer to a developer wanting to onboard the Docker train.
-It is not designed to be a complete docker training (these already exist), but rather a starter kit to quickly get up to speed and at a point where a developer can navigate on its own.
-I intend to point any colleague of mine to this starter kit so I may stress some points that are more relevant for them than for the rest of the world.
+It is not designed to be a complete docker training (these already exist), but rather a starter kit to quickly get up to speed.
+
 There is not a fixed number of parts for this series as I am not sure yet how far I want to go (for instance I am not sure yet if I will talk about Docker compose or Docker Swarm).
-Anyway, do not hesitate to point any mistake or omission.
+Of course, do not hesitate to point any mistake or omission.
 
 ## Getting Started
 
