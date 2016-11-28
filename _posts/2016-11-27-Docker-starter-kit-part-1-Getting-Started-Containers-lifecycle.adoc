@@ -1,7 +1,7 @@
 # Docker starter kit part 1: Getting Started, Container's lifecycle
 
 :hp-tags: HowTo, Docker
-:hp-image: docker.png
+:hp-image: http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/docker.png
 
 Docker is a major change in the way we develop software.
 But it can be a bit challenging for a developer to enter the container world.
