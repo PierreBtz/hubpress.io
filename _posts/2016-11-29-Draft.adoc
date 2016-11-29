@@ -9,5 +9,7 @@ docker push ci-image
 
 
 docker run -v jenkins_home:/var/jenkins_home --name backup ubuntu /bin/bash
-docker run --rm --volumes-from backup -v $(pwd):/backup ubuntu bash -c "cd /var/jenkins_home && tar xvf /backup/backup.tar --strip 1"
+docker run --rm --volumes-from backup -v $(pwd):/backup ubuntu bash -c "cd /var/jenkins_home && tar xvf /backup/backup.tar --strip 2"
+
+docker run -it -v jenkins_home:/var/jenkins_home ubuntu bash
 
