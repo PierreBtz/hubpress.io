@@ -1,0 +1,9 @@
+# Draft
+
+docker inspect jenkins-keep
+/var/jenkins_home
+
+docker run --rm --volumes-from jenkins-keep -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /var/jenkins_home
+scp backup.tar jenkins@remote:/home/jenkins/backup.tar
+docker push ci-image
+
