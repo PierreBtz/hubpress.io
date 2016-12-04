@@ -269,7 +269,8 @@ Contrary to the image layers, this layer is writable.
 If you decide to create another container from the same image, a new writable layer will be created, the rest of the layer stack will be shared.
 
 This diagram from the official documentation pretty much sums it up:
-image::https://docs.docker.com/engine/userguide/storagedriver/images/sharing-layers.jpg
+
+image::https://docs.docker.com/engine/userguide/storagedriver/images/sharing-layers.jpg[Layers and Containers]
 
 If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/[this page] of the official documentation.
 
