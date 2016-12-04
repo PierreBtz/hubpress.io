@@ -1,1 +1,62 @@
-# Docker starter kit part 2: 
+# Docker starter kit part 2: Anatomy of an Image and a Container, data management
+
+In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first part] of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
+
+In this post, we will have an overview on what makes a Docker image and a container.
+Then we will check how we can manage data with Docker.
+We will then finish by an hands on to see an interesting usage of what we saw.
+
+## Anatomy of an image
+
+### Union File Systems
+
+[quote, Docker Official Documentation]
+Union file systems, or UnionFS, are file systems that operate by creating layers, making them very lightweight and fast. Docker uses union file systems to provide the building blocks for containers.
+
+### UnionFS and Docker Images
+
+A Docker image is made of several layers.
+Each layer represents a filesystem difference with the layer below it.
+The stack of all the layers makes up the filesystem of an image.
+Each layer is read only and shared between the images (and the containers, as we will see in the next part).
+
+As you may have guess, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
+We will discuss this in details in another blog post of this series.
+
+### Application
+
+Let us take a concrete example.
+Let us pull a maven image:
+
+[source,bash]
+----
+docker pull maven:3.3
+----
+
+
+[ditaa]
+....
+                   +-------------+
+                   | Asciidoctor |-------+
+                   |   diagram   |       |
+                   +-------------+       | PNG out
+                       ^                 |
+                       | ditaa in        |
+                       |                 v
+ +--------+   +--------+----+    /---------------\
+ |        | --+ Asciidoctor +--> |               |
+ |  Text  |   +-------------+    |   Beautiful   |
+ |Document|   |   !magic!   |    |    Output     |
+ |     {d}|   |             |    |               |
+ +---+----+   +-------------+    \---------------/
+     :                                   ^
+     |          Lots of work             |
+     +-----------------------------------+
+....
+
+
+
+
+
+
+
