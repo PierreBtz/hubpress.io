@@ -260,27 +260,16 @@ Status: Downloaded newer image for openjdk:8-jdk
 
 ## Anatomy of a container
 
+Now, how does the previous apply to containers?
+Well, it is pretty simple actually.
+When you create a container, Docker will add a new layer on top of the stack of layers that makes up the image.
+Contrary to the image layers, this layer is writable.
+If you decide to create another container from the same image, a new writable layer will be created, the rest of the layer stack will be shared.
 
+This diagram from the official documentation pretty much sums it up:
+image::https://docs.docker.com/engine/userguide/storagedriver/images/sharing-layers.jpg
 
-[ditaa]
-....
-                   +-------------+
-                   | Asciidoctor |-------+
-                   |   diagram   |       |
-                   +-------------+       | PNG out
-                       ^                 |
-                       | ditaa in        |
-                       |                 v
- +--------+   +--------+----+    /---------------\
- |        | --+ Asciidoctor +--> |               |
- |  Text  |   +-------------+    |   Beautiful   |
- |Document|   |   !magic!   |    |    Output     |
- |     {d}|   |             |    |               |
- +---+----+   +-------------+    \---------------/
-     :                                   ^
-     |          Lots of work             |
-     +-----------------------------------+
-....
+If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/[this page] of the official documentation (estimated reading time 18 minutes).
 
 
 
