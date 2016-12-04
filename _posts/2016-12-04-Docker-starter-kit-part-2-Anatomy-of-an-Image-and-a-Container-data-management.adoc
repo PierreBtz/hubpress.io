@@ -30,8 +30,236 @@ Let us pull a maven image:
 
 [source,bash]
 ----
-docker pull maven:3.3
+docker pull maven:3.3.9-jdk-8
 ----
+
+Do not bother with the output of the command yet, we will get back to it later.
+Instead, let's now use the history commands that displays all the layers of an image:
+
+[source,bash]
+----
+docker history maven:3.3.9-jdk-8
+----
+
+And the output:
+
+[source]
+----
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]                  0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENTRYPOINT ["/usr/local/bi   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  VOLUME [/root/.m2]           0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) COPY file:b3fc14e8337e0079a   327 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) COPY file:e3aa30a24fcf60a59   1.042 kB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_CONFIG=/root/.m2   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_HOME=/usr/share/   0 B
+<missing>           3 weeks ago         |2 MAVEN_VERSION=3.3.9 USER_HOME_DIR=/root /b   10.03 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ARG USER_HOME_DIR=/root      0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ARG MAVEN_VERSION=3.3.9      0 B
+<missing>           3 weeks ago         /bin/sh -c /var/lib/dpkg/info/ca-certificates   418.2 kB
+<missing>           3 weeks ago         /bin/sh -c set -x  && apt-get update  && apt-   351.5 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV CA_CERTIFICATES_JAVA_V   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_DEBIAN_VERSION=8u   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_VERSION=8u111       0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_HOME=/usr/lib/jvm   0 B
+<missing>           3 weeks ago         /bin/sh -c {   echo '#!/bin/sh';   echo 'set    87 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0 B
+<missing>           3 weeks ago         /bin/sh -c echo 'deb http://deb.debian.org/de   55 B
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    1.287 MB
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    122.6 MB
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    44.3 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB
+____
+
+That is a lot of layers right?
+Well, let's try to sort this out.
+First let's review the Dockerfile used to build this image, https://github.com/carlossg/docker-maven/blob/33eeccbb0ce15440f5ccebcd87040c6be2bf9e91/jdk-8/Dockerfile[available on github]:
+
+[source]
+----
+FROM openjdk:8-jdk
+
+ARG MAVEN_VERSION=3.3.9
+ARG USER_HOME_DIR="/root"
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+  && curl -fsSL http://apache.osuosl.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz \
+    | tar -xzC /usr/share/maven --strip-components=1 \
+  && ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+
+COPY mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
+COPY settings-docker.xml /usr/share/maven/ref/
+
+VOLUME "$USER_HOME_DIR/.m2"
+
+ENTRYPOINT ["/usr/local/bin/mvn-entrypoint.sh"]
+CMD ["mvn"]
+----
+
+When you build an image, you obviously build the layers from bottom to top.
+So if we read the Dockerfile from bottom to top, we should find the list of commands that the history command output:
+
+[source]
+----
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]                  0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENTRYPOINT ["/usr/local/bi   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  VOLUME [/root/.m2]           0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) COPY file:b3fc14e8337e0079a   327 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) COPY file:e3aa30a24fcf60a59   1.042 kB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_CONFIG=/root/.m2   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_HOME=/usr/share/   0 B
+<missing>           3 weeks ago         |2 MAVEN_VERSION=3.3.9 USER_HOME_DIR=/root /b   10.03 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ARG USER_HOME_DIR=/root      0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ARG MAVEN_VERSION=3.3.9      0 B
+----
+It seems coherent, up until the `FROM openjdk:8-jdk` command of the Dockerfile.
+So, what about those remaining layers?
+
+[source]
+----
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+<missing>           3 weeks ago         /bin/sh -c /var/lib/dpkg/info/ca-certificates   418.2 kB
+<missing>           3 weeks ago         /bin/sh -c set -x  && apt-get update  && apt-   351.5 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV CA_CERTIFICATES_JAVA_V   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_DEBIAN_VERSION=8u   0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_VERSION=8u111       0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_HOME=/usr/lib/jvm   0 B
+<missing>           3 weeks ago         /bin/sh -c {   echo '#!/bin/sh';   echo 'set    87 B
+<missing>           3 weeks ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0 B
+<missing>           3 weeks ago         /bin/sh -c echo 'deb http://deb.debian.org/de   55 B
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    1.287 MB
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    122.6 MB
+<missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    44.3 MB
+<missing>           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+<missing>           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB
+____
+
+Let's have a look to the content of the https://github.com/docker-library/openjdk/blob/e6e9cf8b21516ba764189916d35be57486203c95/8-jdk/Dockerfile[Dockerfile used to build openjdk:8-jdk] (comments removed):
+
+[source]
+----
+FROM buildpack-deps:jessie-scm
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		bzip2 \
+		unzip \
+		xz-utils \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN echo 'deb http://deb.debian.org/debian jessie-backports main' > /etc/apt/sources.list.d/jessie-backports.list
+ENV LANG C.UTF-8
+RUN { \
+		echo '#!/bin/sh'; \
+		echo 'set -e'; \
+		echo; \
+		echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
+	} > /usr/local/bin/docker-java-home \
+	&& chmod +x /usr/local/bin/docker-java-home
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+ENV JAVA_VERSION 8u111
+ENV JAVA_DEBIAN_VERSION 8u111-b14-2~bpo8+1
+ENV CA_CERTIFICATES_JAVA_VERSION 20140324
+
+RUN set -x \
+	&& apt-get update \
+	&& apt-get install -y \
+		openjdk-8-jdk="$JAVA_DEBIAN_VERSION" \
+		ca-certificates-java="$CA_CERTIFICATES_JAVA_VERSION" \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
+
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
+____
+
+If you read again the Dockerfile from bottom to top, you'll match every command with a layer.
+We could continue again with the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[buildpack-deps:jessie-scm Dockerfile] but I guess you get the point.
+
+IMPORTANT
+----
+A Docker image is a stack of layers.
+When you build on top of a base image, you are stacking layers on top of all the layers of the base image.
+----
+
+### Base image
+
+At this point, you might wonder which is the mother of all images.
+If you continue working up the base images from the previous example, you will get to the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[debian:jessie image]:
+
+[source]
+----
+FROM scratch
+ADD rootfs.tar.xz /
+CMD ["/bin/bash"]
+----
+
+The scratch image is a reserved minimal image used to signal Docker that you are building an image from scratch.
+The next command of your Dockerfile will be the first layer of your container.
+The scratch image has a special status in Docker.
+You cannot pull it, push it or tag an image with this name.
+Building a base image is clearly out of the scope of this blog post.
+If you wish to build a base image, you can have a look to https://docs.docker.com/engine/userguide/eng-image/baseimages/[the official documentation on base images].
+
+### Back to the output of `docker pull`
+
+Remember, I told you that we would get back to the output of `docker pull maven:3.3.9-jdk-8`.
+My output looked like this:
+
+[source]
+----
+3.3.9-jdk-8: Pulling from library/maven
+
+386a066cd84a: Already exists
+75ea84187083: Already exists
+88b459c9f665: Already exists
+690dbea0e4ca: Already exists
+7e401cdd6f18: Already exists
+a58186ddf9a0: Already exists
+49999ed55bc4: Already exists
+eb40561aad8f: Already exists
+4ce0e24588f2: Pull complete
+35430242cb99: Pull complete
+d4af041dcf95: Pull complete
+Digest: sha256:a7fd540bc273b7c4f1193fbcd46127ad3912fd095a251382f4e4312b9ac85e9d
+Status: Downloaded newer image for maven:3.3.9-jdk-8
+----
+
+The output of the `docker pull` shows you all the images that the maven:3.3.9-jdk-8 image is made of.
+If you compare this output to the output of the `docker history` command, you will notice that we have 11 lines here for 24 layers in the image.
+This is due to the fact that during the build process, docker is able to make optimizations by squashing layers into an image.
+
+IMPORTANT
+----
+The previous statement is right since Docker 1.10.
+Before this, there was a 1:1 ratio between images and layers.
+----
+
+Of course this does not change anything regarding what you download.
+You won't have to download any image if you wish to download the openjdk:8-jdk image for instance:
+
+[source]
+----
+8-jdk: Pulling from library/openjdk
+
+386a066cd84a: Already exists
+75ea84187083: Already exists
+88b459c9f665: Already exists
+690dbea0e4ca: Already exists
+7e401cdd6f18: Already exists
+a58186ddf9a0: Already exists
+49999ed55bc4: Already exists
+eb40561aad8f: Already exists
+Digest: sha256:dd0fc686a5584c0c7f3e50dd84ddc42fae400c27a21d8ca98dad190aff5e9d52
+Status: Downloaded newer image for openjdk:8-jdk
+----
+
+## Anatomy of a container
+
 
 
 [ditaa]
