@@ -12,7 +12,7 @@
 
     <link rel="shortcut icon" href="https://PierreBtz.github.io/favicon.ico">
 
-    <link rel="stylesheet" type="text/css" href="//PierreBtz.github.io/themes/casper/assets/css/screen.css?v=1476038222523" />
+    <link rel="stylesheet" type="text/css" href="//PierreBtz.github.io/themes/casper/assets/css/screen.css?v=1480873428403" />
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
 
     <link rel="canonical" href="https://PierreBtz.github.io/2016/10/09/Running-fish-on-Windows-10.html" />
@@ -114,6 +114,24 @@ fi</code></pre>
 </div>
 <div class="paragraph">
 <p>Be careful not to just <strong>exec fish</strong>, you could break some programs and scripts relying on bash.</p>
+</div>
+<div class="paragraph">
+<p>EDIT(04/12/2016): Despite the following script in my .bashrc, I had issues with scripts relying on bash.
+I found another strategy which was to simply make a shortcut to launch fish.
+To do this, you just have to locate the shortcut you have to launch bash, make a copy of this shortcut and edit it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>target</strong>: Replace <code>C:\Windows\System32\bash.exe ~</code> by <code>C:\Windows\System32\bash.exe -c /usr/bin/fish</code>.</p>
+</li>
+<li>
+<p><strong>start in</strong>: Set your preferred starting point. For the windows home set <code>%userprofile%</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Be sure to remove the modifications of the .bashrc as they are now useless (and maybe not harmless&#8230;&#8203;).</p>
 </div>
 </div>
 </div>
@@ -229,8 +247,8 @@ fisher install simonrelet/tp-fish-function</code></pre>
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/jquery.fitvids.js?v=1476038222523"></script>
-    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/index.js?v=1476038222523"></script>
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/jquery.fitvids.js?v=1480873428403"></script>
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/index.js?v=1480873428403"></script>
 
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
