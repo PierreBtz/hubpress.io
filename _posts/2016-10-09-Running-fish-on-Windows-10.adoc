@@ -36,6 +36,16 @@ fi
 
 Be careful not to just *exec fish*, you could break some programs and scripts relying on bash.
 
+EDIT(04/12/2016): Despite the following script in my .bashrc, I had issues with scripts relying on bash.
+I found another strategy which was to simply make a shortcut to launch fish.
+To do this, you just have to locate the shortcut you have to launch bash, make a copy of this shortcut and edit it:
+
+* *target*: Replace `C:\Windows\System32\bash.exe ~` by `C:\Windows\System32\bash.exe -c /usr/bin/fish`.
+* *start in*: Set your preferred starting point. For the windows home set `%userprofile%`.
+
+Be sure to remove the modifications of the .bashrc as they are now useless (and maybe not harmless...).
+
+
 == Scripting
 I installed https://github.com/fisherman/fisherman[fisherman] to manage the scripts of my fish installation. No ad intended, I don't have enough feedback on it to give advice yet. Just know that there are other plugin managers out there, like https://github.com/oh-my-fish/oh-my-fish[oh my fish]. Here again, no need to adapt the installation instructions, everything worked as it would on Unix. For instance, I decided to install a useful teleporter script that allows to set labels on directories and jump back and forth:
 
