@@ -1,10 +1,8 @@
-# Docker starter kit part 2: Anatomy of an Image and a Container, data management
+# Docker starter kit part 2: Anatomy of an Image and a Container
 
 In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first part] of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
 
-In this post, we will have an overview on what makes a Docker image and a container.
-Then we will check how we can manage data with Docker.
-We will then finish by an hands on to see an interesting usage of what we saw.
+In this post, we will have an overview on what a Docker Image and a Docker Container are made up.
 
 ## Anatomy of an image
 
@@ -13,17 +11,19 @@ We will then finish by an hands on to see an interesting usage of what we saw.
 [quote, Docker Official Documentation]
 Union file systems, or UnionFS, are file systems that operate by creating layers, making them very lightweight and fast. Docker uses union file systems to provide the building blocks for containers.
 
+We will see next how those UnionFS are exploited in Docker.
+
 ### UnionFS and Docker Images
 
 A Docker image is made of several layers.
 Each layer represents a filesystem difference with the layer below it.
 The stack of all the layers makes up the filesystem of an image.
-Each layer is read only and shared between the images (and the containers, as we will see in the next part).
+Each layer is *read only* and shared between the images (and the containers, as we will see in the next part).
 
-As you may have guess, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
+As you may have guessed, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
 We will discuss this in details in another blog post of this series.
 
-### Application
+### Hands On!
 
 Let us take a concrete example.
 Let us pull a maven image:
@@ -70,13 +70,14 @@ b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]          
 <missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    44.3 MB
 <missing>           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
 <missing>           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB
-____
+
+----
 
 That is a lot of layers right?
 Well, let's try to sort this out.
 First let's review the Dockerfile used to build this image, https://github.com/carlossg/docker-maven/blob/33eeccbb0ce15440f5ccebcd87040c6be2bf9e91/jdk-8/Dockerfile[available on github]:
 
-[source]
+[source, Dockerfile]
 ----
 FROM openjdk:8-jdk
 
@@ -117,7 +118,7 @@ b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]          
 <missing>           3 weeks ago         /bin/sh -c #(nop)  ARG USER_HOME_DIR=/root      0 B
 <missing>           3 weeks ago         /bin/sh -c #(nop)  ARG MAVEN_VERSION=3.3.9      0 B
 ----
-It seems coherent, up until the `FROM openjdk:8-jdk` command of the Dockerfile.
+It seems correct, up until the `FROM openjdk:8-jdk` command of the Dockerfile.
 So, what about those remaining layers?
 
 [source]
@@ -137,11 +138,11 @@ IMAGE               CREATED             CREATED BY                              
 <missing>           3 weeks ago         /bin/sh -c apt-get update && apt-get install    44.3 MB
 <missing>           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
 <missing>           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB
-____
+----
 
-Let's have a look to the content of the https://github.com/docker-library/openjdk/blob/e6e9cf8b21516ba764189916d35be57486203c95/8-jdk/Dockerfile[Dockerfile used to build openjdk:8-jdk] (comments removed):
+Let's have a look at the content of the https://github.com/docker-library/openjdk/blob/e6e9cf8b21516ba764189916d35be57486203c95/8-jdk/Dockerfile[Dockerfile used to build openjdk:8-jdk] (I removed the comments to the readibility):
 
-[source]
+[source, Dockerfile]
 ----
 FROM buildpack-deps:jessie-scm
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -175,12 +176,12 @@ RUN set -x \
 	&& [ "$JAVA_HOME" = "$(docker-java-home)" ]
 
 RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure
-____
+----
 
-If you read again the Dockerfile from bottom to top, you'll match every command with a layer.
-We could continue again with the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[buildpack-deps:jessie-scm Dockerfile] but I guess you get the point.
+If you read the Dockerfile from bottom to top, you'll match every command with a layer.
+We could continue again with the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[Dockerfile of the next base image (buildpack-deps:jessie-scm)] but I guess you get the point.
 
-IMPORTANT
+[IMPORTANT]
 ----
 A Docker image is a stack of layers.
 When you build on top of a base image, you are stacking layers on top of all the layers of the base image.
@@ -189,19 +190,19 @@ When you build on top of a base image, you are stacking layers on top of all the
 ### Base image
 
 At this point, you might wonder which is the mother of all images.
-If you continue working up the base images from the previous example, you will get to the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[debian:jessie image]:
+If you continue working up the base images from the previous example, you will get to the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[debian:jessie] image:
 
-[source]
+[source, Dockerfile]
 ----
 FROM scratch
 ADD rootfs.tar.xz /
 CMD ["/bin/bash"]
 ----
 
-The scratch image is a reserved minimal image used to signal Docker that you are building an image from scratch.
+The scratch image is a *reserved minimal image* used to signal Docker that you are building an image from scratch.
 The next command of your Dockerfile will be the first layer of your container.
 The scratch image has a special status in Docker.
-You cannot pull it, push it or tag an image with this name.
+You cannot pull it, push it or tag an image with the name.
 Building a base image is clearly out of the scope of this blog post.
 If you wish to build a base image, you can have a look to https://docs.docker.com/engine/userguide/eng-image/baseimages/[the official documentation on base images].
 
@@ -229,14 +230,14 @@ Digest: sha256:a7fd540bc273b7c4f1193fbcd46127ad3912fd095a251382f4e4312b9ac85e9d
 Status: Downloaded newer image for maven:3.3.9-jdk-8
 ----
 
-The output of the `docker pull` shows you all the images that the maven:3.3.9-jdk-8 image is made of.
-If you compare this output to the output of the `docker history` command, you will notice that we have 11 lines here for 24 layers in the image.
+The output of the `docker pull` shows you all the *image layers* that the maven:3.3.9-jdk-8 image is made of.
+If you compare this output to the output of the `docker history` command, you will notice that we have 11 image layers here for 24 layers in the image.
 This is due to the fact that during the build process, docker is able to make optimizations by squashing layers into an image.
 
-IMPORTANT
+[IMPORTANT]
 ----
 The previous statement is right since Docker 1.10.
-Before this, there was a 1:1 ratio between images and layers.
+Before version 1.10, there was a 1:1 ratio between image layers and layers.
 ----
 
 Of course this does not change anything regarding what you download.
@@ -244,7 +245,7 @@ You won't have to download any image if you wish to download the openjdk:8-jdk i
 
 [source]
 ----
-8-jdk: Pulling from library/openjdk
+openjdk:8-jdk: Pulling from library/openjdk
 
 386a066cd84a: Already exists
 75ea84187083: Already exists
@@ -264,12 +265,15 @@ Now, how does the previous apply to containers?
 Well, it is pretty simple actually.
 When you create a container, Docker will add a new layer on top of the stack of layers that makes up the image.
 Contrary to the image layers, this layer is writable.
+
 If you decide to create another container from the same image, a new writable layer will be created, the rest of the layer stack will be shared.
 
 This diagram from the official documentation pretty much sums it up:
 image::https://docs.docker.com/engine/userguide/storagedriver/images/sharing-layers.jpg
 
-If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/[this page] of the official documentation (estimated reading time 18 minutes).
+If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/[this page] of the official documentation.
+
+That is it for this post, the next one will show you how to manage your data with Docker.
 
 
 
