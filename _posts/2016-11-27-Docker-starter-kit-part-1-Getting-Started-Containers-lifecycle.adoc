@@ -71,6 +71,6 @@ NB: You can also directly send a SIGKILL signal using https://docs.docker.com/en
 It is probably not a good idea if you wish to restart your container.
 You can move from a stopped container to a running container using the docker start command.
 
-
+That is it for this post, you can jump to the next one: https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html[Docker starter kit part 2: Anatomy of an Image and a Container]
 
 
