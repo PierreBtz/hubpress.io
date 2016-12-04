@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 04 Dec 2016 17:35:03 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 2: Anatomy of an Image and a Container]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 04 Dec 2016 17:43:48 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 2: Anatomy of an Image and a Container]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the <a href="https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html">first part</a> of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.</p>
@@ -503,6 +503,24 @@ fi</code></pre>
 </div>
 <div class="paragraph">
 <p>Be careful not to just <strong>exec fish</strong>, you could break some programs and scripts relying on bash.</p>
+</div>
+<div class="paragraph">
+<p>EDIT(04/12/2016): Despite the following script in my .bashrc, I had issues with scripts relying on bash.
+I found another strategy which was to simply make a shortcut to launch fish.
+To do this, you just have to locate the shortcut you have to launch bash, make a copy of this shortcut and edit it:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>target</strong>: Replace <code>C:\Windows\System32\bash.exe ~</code> by <code>C:\Windows\System32\bash.exe -c /usr/bin/fish</code>.</p>
+</li>
+<li>
+<p><strong>start in</strong>: Set your preferred starting point. For the windows home set <code>%userprofile%</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Be sure to remove the modifications of the .bashrc as they are now useless (and maybe not harmless&#8230;&#8203;).</p>
 </div>
 </div>
 </div>
