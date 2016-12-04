@@ -37,7 +37,7 @@ In the following, I will assume you have the basic understanding that the tutori
 
 EDIT (04/12/2016): You can also have a look to the blog of http://jmkhael.io/[Johnny Mkhael] who wrote a http://jmkhael.hopto.org/hello-docker/[Hello Docker] blog series.
 
-## Lifecyle of a container
+## Lifecycle of a container
 
 ### Overview
 
