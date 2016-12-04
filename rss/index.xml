@@ -1,4 +1,325 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 04 Dec 2016 16:10:29 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 1: Getting Started, Container's lifecycle]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 04 Dec 2016 17:32:35 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 2: Anatomy of an Image and a Container]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the <a href="https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html">first part</a> of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.</p>
+</div>
+<div class="paragraph">
+<p>In this post, we will have an overview on what a Docker Image and a Docker Container are made up.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_anatomy_of_an_image">Anatomy of an image</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_union_file_systems">Union File Systems</h3>
+<div class="quoteblock">
+<blockquote>
+Union file systems, or UnionFS, are file systems that operate by creating layers, making them very lightweight and fast. Docker uses union file systems to provide the building blocks for containers.
+</blockquote>
+<div class="attribution">
+&#8212; Docker Official Documentation
+</div>
+</div>
+<div class="paragraph">
+<p>We will see next how those UnionFS are exploited in Docker.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_unionfs_and_docker_images">UnionFS and Docker Images</h3>
+<div class="paragraph">
+<p>A Docker image is made of several layers.
+Each layer represents a filesystem difference with the layer below it.
+The stack of all the layers makes up the filesystem of an image.
+Each layer is <strong>read only</strong> and shared between the images (and the containers, as we will see in the next part).</p>
+</div>
+<div class="paragraph">
+<p>As you may have guessed, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
+We will discuss this in details in another blog post of this series.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_hands_on">Hands On!</h3>
+<div class="paragraph">
+<p>Let us take a concrete example.
+Let us pull a maven image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker pull maven:3.3.9-jdk-8</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Do not bother with the output of the command yet, we will get back to it later.
+Instead, let&#8217;s now use the history commands that displays all the layers of an image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker history maven:3.3.9-jdk-8</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]                  0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENTRYPOINT ["/usr/local/bi   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  VOLUME [/root/.m2]           0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) COPY file:b3fc14e8337e0079a   327 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) COPY file:e3aa30a24fcf60a59   1.042 kB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_CONFIG=/root/.m2   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_HOME=/usr/share/   0 B
+&lt;missing&gt;           3 weeks ago         |2 MAVEN_VERSION=3.3.9 USER_HOME_DIR=/root /b   10.03 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ARG USER_HOME_DIR=/root      0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ARG MAVEN_VERSION=3.3.9      0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c /var/lib/dpkg/info/ca-certificates   418.2 kB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c set -x  &amp;&amp; apt-get update  &amp;&amp; apt-   351.5 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV CA_CERTIFICATES_JAVA_V   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_DEBIAN_VERSION=8u   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_VERSION=8u111       0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_HOME=/usr/lib/jvm   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c {   echo '#!/bin/sh';   echo 'set    87 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c echo 'deb http://deb.debian.org/de   55 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    1.287 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    122.6 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    44.3 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That is a lot of layers right?
+Well, let&#8217;s try to sort this out.
+First let&#8217;s review the Dockerfile used to build this image, <a href="https://github.com/carlossg/docker-maven/blob/33eeccbb0ce15440f5ccebcd87040c6be2bf9e91/jdk-8/Dockerfile">available on github</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-Dockerfile" data-lang="Dockerfile">FROM openjdk:8-jdk
+
+ARG MAVEN_VERSION=3.3.9
+ARG USER_HOME_DIR="/root"
+
+RUN mkdir -p /usr/share/maven /usr/share/maven/ref \
+  &amp;&amp; curl -fsSL http://apache.osuosl.org/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz \
+    | tar -xzC /usr/share/maven --strip-components=1 \
+  &amp;&amp; ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
+
+ENV MAVEN_HOME /usr/share/maven
+ENV MAVEN_CONFIG "$USER_HOME_DIR/.m2"
+
+COPY mvn-entrypoint.sh /usr/local/bin/mvn-entrypoint.sh
+COPY settings-docker.xml /usr/share/maven/ref/
+
+VOLUME "$USER_HOME_DIR/.m2"
+
+ENTRYPOINT ["/usr/local/bin/mvn-entrypoint.sh"]
+CMD ["mvn"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When you build an image, you obviously build the layers from bottom to top.
+So if we read the Dockerfile from bottom to top, we should find the list of commands that the history command output:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]                  0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENTRYPOINT ["/usr/local/bi   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  VOLUME [/root/.m2]           0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) COPY file:b3fc14e8337e0079a   327 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) COPY file:e3aa30a24fcf60a59   1.042 kB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_CONFIG=/root/.m2   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV MAVEN_HOME=/usr/share/   0 B
+&lt;missing&gt;           3 weeks ago         |2 MAVEN_VERSION=3.3.9 USER_HOME_DIR=/root /b   10.03 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ARG USER_HOME_DIR=/root      0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ARG MAVEN_VERSION=3.3.9      0 B</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It seems correct, up until the <code>FROM openjdk:8-jdk</code> command of the Dockerfile.
+So, what about those remaining layers?</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+&lt;missing&gt;           3 weeks ago         /bin/sh -c /var/lib/dpkg/info/ca-certificates   418.2 kB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c set -x  &amp;&amp; apt-get update  &amp;&amp; apt-   351.5 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV CA_CERTIFICATES_JAVA_V   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_DEBIAN_VERSION=8u   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_VERSION=8u111       0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV JAVA_HOME=/usr/lib/jvm   0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c {   echo '#!/bin/sh';   echo 'set    87 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  ENV LANG=C.UTF-8             0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c echo 'deb http://deb.debian.org/de   55 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    1.287 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    122.6 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c apt-get update &amp;&amp; apt-get install    44.3 MB
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+&lt;missing&gt;           3 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c50116884c   123 MB</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s have a look at the content of the <a href="https://github.com/docker-library/openjdk/blob/e6e9cf8b21516ba764189916d35be57486203c95/8-jdk/Dockerfile">Dockerfile used to build openjdk:8-jdk</a> (I removed the comments to the readibility):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-Dockerfile" data-lang="Dockerfile">FROM buildpack-deps:jessie-scm
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends \
+		bzip2 \
+		unzip \
+		xz-utils \
+	&amp;&amp; rm -rf /var/lib/apt/lists/*
+
+RUN echo 'deb http://deb.debian.org/debian jessie-backports main' &gt; /etc/apt/sources.list.d/jessie-backports.list
+ENV LANG C.UTF-8
+RUN { \
+		echo '#!/bin/sh'; \
+		echo 'set -e'; \
+		echo; \
+		echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; \
+	} &gt; /usr/local/bin/docker-java-home \
+	&amp;&amp; chmod +x /usr/local/bin/docker-java-home
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
+
+ENV JAVA_VERSION 8u111
+ENV JAVA_DEBIAN_VERSION 8u111-b14-2~bpo8+1
+ENV CA_CERTIFICATES_JAVA_VERSION 20140324
+
+RUN set -x \
+	&amp;&amp; apt-get update \
+	&amp;&amp; apt-get install -y \
+		openjdk-8-jdk="$JAVA_DEBIAN_VERSION" \
+		ca-certificates-java="$CA_CERTIFICATES_JAVA_VERSION" \
+	&amp;&amp; rm -rf /var/lib/apt/lists/* \
+	&amp;&amp; [ "$JAVA_HOME" = "$(docker-java-home)" ]
+
+RUN /var/lib/dpkg/info/ca-certificates-java.postinst configure</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you read the Dockerfile from bottom to top, you&#8217;ll match every command with a layer.
+We could continue again with the <a href="https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile">Dockerfile of the next base image (buildpack-deps:jessie-scm)</a> but I guess you get the point.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>A Docker image is a stack of layers.
+When you build on top of a base image, you are stacking layers on top of all the layers of the base image.</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_base_image">Base image</h3>
+<div class="paragraph">
+<p>At this point, you might wonder which is the mother of all images.
+If you continue working up the base images from the previous example, you will get to the <a href="https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile">debian:jessie</a> image:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-Dockerfile" data-lang="Dockerfile">FROM scratch
+ADD rootfs.tar.xz /
+CMD ["/bin/bash"]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The scratch image is a <strong>reserved minimal image</strong> used to signal Docker that you are building an image from scratch.
+The next command of your Dockerfile will be the first layer of your container.
+The scratch image has a special status in Docker.
+You cannot pull it, push it or tag an image with the name.
+Building a base image is clearly out of the scope of this blog post.
+If you wish to build a base image, you can have a look to <a href="https://docs.docker.com/engine/userguide/eng-image/baseimages/">the official documentation on base images</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_back_to_the_output_of_code_docker_pull_code">Back to the output of <code>docker pull</code></h3>
+<div class="paragraph">
+<p>Remember, I told you that we would get back to the output of <code>docker pull maven:3.3.9-jdk-8</code>.
+My output looked like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>3.3.9-jdk-8: Pulling from library/maven
+
+386a066cd84a: Already exists
+75ea84187083: Already exists
+88b459c9f665: Already exists
+690dbea0e4ca: Already exists
+7e401cdd6f18: Already exists
+a58186ddf9a0: Already exists
+49999ed55bc4: Already exists
+eb40561aad8f: Already exists
+4ce0e24588f2: Pull complete
+35430242cb99: Pull complete
+d4af041dcf95: Pull complete
+Digest: sha256:a7fd540bc273b7c4f1193fbcd46127ad3912fd095a251382f4e4312b9ac85e9d
+Status: Downloaded newer image for maven:3.3.9-jdk-8</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The output of the <code>docker pull</code> shows you all the <strong>image layers</strong> that the maven:3.3.9-jdk-8 image is made of.
+If you compare this output to the output of the <code>docker history</code> command, you will notice that we have 11 image layers here for 24 layers in the image.
+This is due to the fact that during the build process, docker is able to make optimizations by squashing layers into an image.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>The previous statement is right since Docker 1.10.
+Before version 1.10, there was a 1:1 ratio between image layers and layers.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Of course this does not change anything regarding what you download.
+You won&#8217;t have to download any image if you wish to download the openjdk:8-jdk image for instance:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>openjdk:8-jdk: Pulling from library/openjdk
+
+386a066cd84a: Already exists
+75ea84187083: Already exists
+88b459c9f665: Already exists
+690dbea0e4ca: Already exists
+7e401cdd6f18: Already exists
+a58186ddf9a0: Already exists
+49999ed55bc4: Already exists
+eb40561aad8f: Already exists
+Digest: sha256:dd0fc686a5584c0c7f3e50dd84ddc42fae400c27a21d8ca98dad190aff5e9d52
+Status: Downloaded newer image for openjdk:8-jdk</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_anatomy_of_a_container">Anatomy of a container</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now, how does the previous apply to containers?
+Well, it is pretty simple actually.
+When you create a container, Docker will add a new layer on top of the stack of layers that makes up the image.
+Contrary to the image layers, this layer is writable.</p>
+</div>
+<div class="paragraph">
+<p>If you decide to create another container from the same image, a new writable layer will be created, the rest of the layer stack will be shared.</p>
+</div>
+<div class="paragraph">
+<p>This diagram from the official documentation pretty much sums it up:</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://docs.docker.com/engine/userguide/storagedriver/images/sharing-layers.jpg" alt="Layers and Containers">
+</div>
+</div>
+<div class="paragraph">
+<p>If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest <a href="https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/">this page</a> of the official documentation.</p>
+</div>
+<div class="paragraph">
+<p>That is it for this post, the next one will show you how to manage your data with Docker.</p>
+</div>
+</div>
+</div>]]></description><link>https://PierreBtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html</guid><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Sun, 04 Dec 2016 00:00:00 GMT</pubDate></item><item><title><![CDATA[Docker starter kit part 1: Getting Started, Container's lifecycle]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Docker is a major change in the way we develop software.
