@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 04 Dec 2016 17:43:48 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 2: Anatomy of an Image and a Container]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Mon, 05 Dec 2016 09:25:29 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 2: Anatomy of an Image and a Container]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the <a href="https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html">first part</a> of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.</p>
@@ -34,7 +34,7 @@ The stack of all the layers makes up the filesystem of an image.
 Each layer is <strong>read only</strong> and shared between the images (and the containers, as we will see in the next part).</p>
 </div>
 <div class="paragraph">
-<p>As you may have guessed, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
+<p>As you may have guessed, all of this means that you need to be very careful when building new images to maximize the reuse of layers.
 We will discuss this in details in another blog post of this series.</p>
 </div>
 </div>
