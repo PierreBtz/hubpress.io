@@ -23,7 +23,7 @@ Each layer represents a filesystem difference with the layer below it.
 The stack of all the layers makes up the filesystem of an image.
 Each layer is *read only* and shared between the images (and the containers, as we will see in the next part).
 
-As you may have guessed, all of this means that you need to be very careful when building new image to maximize the reuse of layers.
+As you may have guessed, all of this means that you need to be very careful when building new images to maximize the reuse of layers.
 We will discuss this in details in another blog post of this series.
 
 ### Hands On!
