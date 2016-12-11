@@ -1,4 +1,4 @@
-# Docker starter kit part 3: Volumes and Data Management
+# Docker starter kit part 3: Commits, Volumes and Data Management
 
 In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first] part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
 In the https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html[second part] you then studied what a Docker Image and a Docker Container are made up.
@@ -102,12 +102,253 @@ IMAGE               CREATED             CREATED BY                              
 <missing>           4 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c501168...   123 MB
 ----
 
-IMPORTANT:
-
-
-
-
-
+[IMPORTANT]
+----
+The `docker commit` command is useful to commit changes you do not want to lose.
+You can also leverage on it to move a custom container to another machine for instance.
+However, for maintenability purpose, it is recommended to build your images using a Dockerfile as you saw in the first part of this series.
+We will get back to the building of image using Dockerfile in more details later on.
+----
 
 ## Volumes
+At this point, you might starting to understand that the UnionFS is not really what we wish for data persistence.
+With it, data are bound to a container lifecycle.
+You can quickly lose some data by just destroying a container.
+Data sharing between containers is not easily possible either.
+At this point, volume comes into play.
 
+### Definition
+A volume is a directory that bypasses the UnionFS.
+A volume decouples the data from the lifecycle of the container.
+
+Among its properties are:
+* A volume is initialized at container creation.
+* A volume can be shared and reused between different containers.
+* If you delete a container, its volumes are not deleted (except if you explicitely ask for their deletion).
+
+### Data Volumes
+
+[IMPORTANT]
+----
+The following assumes you are using at least Docker v1.9.
+This is the first release that is using named volumes.
+----
+
+#### Named volumes
+##### Creation and Mounting
+There are two ways of creating named volumes:
+
+* either explicitely with the `docker volume create` command.
+* or implicitely when creating a new container.
+
+So both of the following will do the same:
+
+[source,bash]
+----
+## explicit method
+docker volume create --name my_data
+docker run -it --name my_container -v my_data:/data debian:jessie bash
+## implicit method
+docker run -it --name my_container -v my_data:/data debian:jessie bash
+----
+
+I'll let you run one of the two methods (not both!).
+You should be attached to a container.
+We will then write a file in our volume:
+
+[source,bash]
+----
+touch /data/hello
+exit
+----
+
+Then, let's mount a new container.
+This time, the my_data volume will be mount under /home:
+
+[source,bash]
+----
+docker run -it --name my_container2 -v my_data:/home debian:jessie bash
+----
+
+In the container, let's check that our volume is correctly mounted under /home:
+
+[source,bash]
+----
+ls /home
+exit
+----
+
+##### Mounting volumes used by other containers
+
+You can mount volumes using by other containers.
+For instance, the following would mount a /data and a /home directory, both pointing to the same volume:
+
+[source,bash]
+----
+docker run -it --name my_container3 --volumes-from my_container --volumes-from my_container2 debian:jessie bash
+----
+
+In the container, we can check that both /data and /home contain the hello file:
+[source,bash]
+----
+ls /home
+ls /data
+exit
+----
+
+[IMPORTANT]
+----
+*Be careful* with what you do when manipulating volumes.
+It may be not a good idea to mount the same volume on two different mount points in the same directory!
+Same thing with concurrent modifications.
+If you are mounting the same volume in different containers, you most probably want to check for concurrent modifications.
+----
+
+##### Mounting on an existing directory
+If a container contains data in the mount point, then this data is copied onto the new volume.
+
+##### Find the volume(s) used by a container
+You can use the `docker inspect --format "{{ .Mounts }}"` command to locate the volume(s) used by a container.
+Running this command on my_container3, we have:
+
+[source]
+----
+[{ my_data /var/lib/docker/volumes/my_data/_data /data local  true } 
+ { my_data /var/lib/docker/volumes/my_data/_data /home local  true }
+]
+----
+
+##### Removing a volume
+One thing important to know, is that removing a container won't remove its volumes (even if they are not used by any other container).
+This is coherent with the fact that volumes should lived independently from containers.
+So if we do the following:
+
+[source,bash]
+----
+docker rm my_container
+docker rm my_container2
+docker rm my_container3
+docker volume ls | grep my_data
+----
+
+We see that we still have a our my_data volume.
+To finally delete the volume:
+
+[source,bash]
+----
+docker volume rm my_data
+----
+
+##### Read only mode
+Until now, we did not specify any option when mounting our volume.
+It was mounted as read/write.
+We could chose to mount it in read only mode:
+
+[source,bash]
+----
+docker run -it --name my_container -v my_data:/data:ro debian:jessie bash
+----
+
+In the container:
+
+[source,bash]
+----
+root@325a440f674b:/# touch /data/hello
+touch: cannot touch '/data/hello': Read-only file system
+----
+
+#### Host directory mounting
+Docker also allows to mount a directory of your host.
+You can mount a host directory by specifying a *full path*/
+Create a file called hello, containing the string hello world on your host.
+Then issue:
+
+[source,bash]
+----
+docker run -it --name host_mounting -v $PWD:/data debian:jessie bash
+----
+
+
+
+#### About Data Containers
+
+I made a choice to present you only named volumes and to avoid data containers.
+Here is why: when you use data container, Docker really creates unnamed containers behind your back.
+If you destroy your data container, the volume it was using become dangling and you have no more way of mounting it to check it.
+
+Here is an example that will show you a bit the usage of data containers and the limitation I was mentionning.
+
+We will first run interactively a container with an unnamed volume:
+
+[source,bash]
+----
+docker run -it --name unnamed_volume -v /data debian:jessie bash
+----
+
+And in the container:
+[source,bash]
+----
+touch /data/hello
+exit
+----
+
+Let's inspect the container for mounted volumes:
+[source,bash]
+----
+docker inspect --format "{{ .Mounts }}" unnamed_volume
+----
+
+You end up with:
+[source]
+----
+[{volume 6faa8a43f80bb550b11aa8f3f6093273782fbf5a5674fd5067ba7c7c27942314 /var/lib/docker/volumes/6faa8a43f80bb550b11aa8f3f6093273782fbf5a5674fd5067ba7c7c27942314/_data /data local  true }]
+----
+
+So you really have a volume stored.
+Now, usually, what you would do to be able to reuse this data container from another container is to use the `--volumes-from` command:
+
+[source,bash]
+----
+docker run -it --name unnamed_volume2 --volumes-from unnamed_volume debian:jessie bash
+----
+
+Here unnamed_volume2 shares the same unnamed volume with unnamed_volume.
+This volume is mounted under /data.
+Let's check this:
+
+[source,bash]
+----
+ls /data
+exit
+----
+
+You should see our dummy hello file.
+So far so good.
+Why do I prefer avoiding this technic might you ask.
+Well, let's now delete both our containers after having taken care of remembering our unnamed volume id:
+
+[source,bash]
+----
+docker inspect --format "{{ .Mounts }}" unnamed_volume
+docker rm unnamed_volume
+docker rm unnamed_volume2
+----
+And let's look for our unnamed volume:
+[source,bash]
+----
+docker volume ls | grep <volume_id>
+----
+
+It's still there!
+Of course, you could still mount it by its id, to check what it contains, but it's far from perfect from a maintenance point of view.
+
+[IMPORTANT]
+----
+You could also have issued a `docker rm -v` command to delete any anonymous volumes.
+----
+
+I'm not saying that unnamed volumes and data containers might not be useful sometimes, but most of the case you will probably ended up using named containers.
+So, unless you are stuck with a pre 1.9 version of Docker, I strongly suggest you consider named volumes first.
+In any case, you might want to review the https://docs.docker.com/engine/tutorials/dockervolumes/[Manage data in containers] page of the official documentation.
+
+That's it for this post, next one will show you how you could back up and restore your data, how you can extend volumes with drivers, and  a practical usage of the mounting of a host directory.
