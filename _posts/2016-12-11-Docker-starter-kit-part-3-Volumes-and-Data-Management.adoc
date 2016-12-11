@@ -1,0 +1,98 @@
+# Docker starter kit part 3: Volumes and Data Management
+
+In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first] part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
+In the https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html[second part] you then studied what a Docker Image and a Docker Container are made up.
+
+This third post of the series will dive into how you can manage your data with Docker.
+
+## UnionFS and persistence
+### Thin Layer Lifecycle
+If you remember correctly what we saw until now, an image is the union of multiple read only layers.
+When we create a container, Dockers adds a new read/write thin layer.
+Everything that happens during the life of the container occurs in this thin layer.
+When the container is destroyed this thin layer is destroyed with it and everything that happened during the life of the container is lost.
+
+### Docker commit
+Let me reassure you right now, there is a way to avoid losing everything: the `docker commit` command.
+Basically what this command does is commit the thin layer into a new image, a bit like you would commit your staged files into your git repository.
+To illustrate this, we will use the debian:jessie image we already encountered.
+We will run it starting an interactive bash session:
+
+[source,bash]
+----
+docker run --name demo -it debian:jessie bash
+----
+
+We will get back to this on a later post, for the moment, let's just say to simplify that we told Docker to attach to the container so that we can run commands interactively.
+You should no have something like this:
+
+[source]
+----
+root@<container_id>:/#
+----
+
+You are ready to interact directly with your container.
+Let's create a simple dummy file to simulate data:
+
+[source,bash]
+----
+cd home
+touch hello
+----
+
+Now, if you remember correctly, we just have created a file named hello in the thin layer of the container.
+First let's check that if we stop and restart are container the file is still here.
+We will exit the container:
+
+[source,bash]
+----
+exit
+----
+
+The container should be stopped (you can check with `docker ps -a`), let's restart it and attach to it:
+
+[source,bash]
+----
+docker start demo
+docker exec -it demo bash
+----
+
+We are now attached to the container, let's make sure our file is still here:
+
+[source,bash]
+----
+ls /home/
+----
+
+You should see hello.
+Now, let's exit the container again (`exit`) and instanciate a new container from debian:jessie:
+
+[source,bash]
+----
+docker run --name demo2 -it debian:jessie bash
+----
+
+Let's check the content of the home directory of this container:
+
+[source,bash]
+----
+ls /home/
+----
+
+It's empty as we expected.
+This means that if we destroy the demo container, we lose our hello file.
+Fortunately, the `docker commit` command is here to help us.
+Let's exit the demo2 container again.
+Then we can commit our demo container:
+
+
+
+
+
+
+
+
+
+
+## Volumes
+
