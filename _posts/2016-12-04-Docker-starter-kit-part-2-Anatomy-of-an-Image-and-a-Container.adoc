@@ -277,7 +277,7 @@ image::https://docs.docker.com/engine/userguide/storagedriver/images/sharing-lay
 
 If you wish to go further in your understanding of containers, particurlarly on the topic of the writing strategies in containers, I suggest https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/[this page] of the official documentation.
 
-That is it for this post, the next one will show you how to manage your data with Docker.
+That is it for this post, you can jump to the next one https://pierrebtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html[Docker starter kit part 3: Commits, Volumes and Data Management]
 
 
 
