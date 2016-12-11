@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>Docker starter kit part 3: Commits, Volumes and Data Management</title>
+    <meta name="description" content="" />
+
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="shortcut icon" href="https://PierreBtz.github.io/favicon.ico">
+
+    <link rel="stylesheet" type="text/css" href="//PierreBtz.github.io/themes/casper/assets/css/screen.css?v=1481487758800" />
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merriweather:300,700,700italic,300italic|Open+Sans:700,400" />
+
+    <link rel="canonical" href="https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Pierre Beitz" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Docker starter kit part 3: Commits, Volumes and Data Management" />
+    <meta property="og:description" content="In the first part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container. In the second part you then studied what a Docker Image and a Docker Container are made up." />
+    <meta property="og:url" content="https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html" />
+    <meta property="article:tag" content="HowTo" />
+    <meta property="article:tag" content=" Docker" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Docker starter kit part 3: Commits, Volumes and Data Management" />
+    <meta name="twitter:description" content="In the first part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container. In the second part you then studied what a Docker Image and a Docker Container are made up." />
+    <meta name="twitter:url" content="https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Pierre Beitz" href="https://PierreBtz.github.io/rss/" />
+</head>
+<body class="post-template tag-How-To tag-Docker nav-closed">
+
+    
+
+    <div class="site-wrapper">
+
+        
+
+
+<header class="main-header post-head " style="background-image: url(http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/docker.png)">
+    <nav class="main-nav overlay clearfix">
+        
+    </nav>
+</header>
+
+<main class="content" role="main">
+    <article class="post tag-How-To tag-Docker">
+
+        <header class="post-header">
+            <h1 class="post-title">Docker starter kit part 3: Commits, Volumes and Data Management</h1>
+            <section class="post-meta">
+                <time class="post-date" datetime="2016-12-11">11 December 2016</time>  on <a href="https://PierreBtz.github.io/tag/How-To/">HowTo</a>, <a href="https://PierreBtz.github.io/tag/Docker/"> Docker</a>
+            </section>
+        </header>
+
+        <section class="post-content">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>In the <a href="https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html">first</a> part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
+In the <a href="https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html">second part</a> you then studied what a Docker Image and a Docker Container are made up.</p>
+</div>
+<div class="paragraph">
+<p>This third post of the series will dive into how you can manage your data with Docker.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_unionfs_and_persistence">UnionFS and persistence</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_thin_layer_lifecycle">Thin Layer Lifecycle</h3>
+<div class="paragraph">
+<p>If you remember correctly what we saw until now, an image is the union of multiple read only layers.
+When we create a container, Dockers adds a new read/write thin layer.
+Everything that happens during the life of the container occurs in this thin layer.
+When the container is destroyed this thin layer is destroyed with it and everything that happened during the life of the container is lost.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_docker_commit">Docker commit</h3>
+<div class="paragraph">
+<p>Let me reassure you right now, there is a way to avoid losing everything: the <code>docker commit</code> command.
+Basically what this command does is commit the thin layer into a new image, a bit like you would commit your staged files into your git repository.
+To illustrate this, we will use the debian:jessie image we already encountered.
+We will run it starting an interactive bash session:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run --name demo -it debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We will get back to this on a later post, for the moment, let&#8217;s just say to simplify that we told Docker to attach to the container so that we can run commands interactively.
+You should now have something like this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>root@&lt;container_id&gt;:/#</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You are ready to interact directly with your container.
+Let&#8217;s create a simple dummy file to simulate data:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">cd home
+touch hello</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now, if you remember correctly, we just have created a file named hello in the thin layer of the container.
+First let&#8217;s check that if we stop and restart the container the file is still here.
+We will exit the container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">exit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The container should be stopped (you can check with <code>docker ps -a</code>), let&#8217;s restart it and attach to it:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker start demo
+docker exec -it demo bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We are now attached to the container, let&#8217;s make sure our file is still here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ls /home/</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see hello.
+Now, let&#8217;s exit the container again (<code>exit</code>) and instanciate a new container from debian:jessie:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run --name demo2 -it debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s check the content of the home directory of this container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ls /home/</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s empty as we expected.
+This means that if we destroy the demo container, we lose our hello file.
+Fortunately, the <code>docker commit</code> command is here to help us.
+Let&#8217;s exit the demo2 container again.
+Then we can commit our demo container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker commit demo dummyimage</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it, we have an image ready and we can create new containers which will contain our hello file.
+I&#8217;ll let you make sure any container created from our dummyimage is containing the hello file.
+You can also check the history of the image to see that we indeed commited a new layer:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+387fe6f1f01a        15 hours ago        bash                                            71 B
+73e72bf822ca        4 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+&lt;missing&gt;           4 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c501168...   123 MB</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>The `docker commit` command is useful to commit changes you do not want to lose.
+You can also leverage on it to move a custom container to another machine for instance.
+However, for maintenability purpose, it is recommended to build your images using a Dockerfile as you saw in the first part of this series.
+We will get back to the building of image using Dockerfile in more details later on.</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_volumes">Volumes</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>At this point, you might starting to understand that the UnionFS is not really what we wish for data persistence.
+With it, data are bound to a container lifecycle.
+You can quickly lose some data by just destroying a container.
+Data sharing between containers is not easily possible either.
+Now, volume comes into play.</p>
+</div>
+<div class="sect2">
+<h3 id="_definition">Definition</h3>
+<div class="paragraph">
+<p>A volume is a directory that bypasses the UnionFS.
+A volume decouples the data from the lifecycle of the container.</p>
+</div>
+<div class="paragraph">
+<p>Among its properties are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>A volume is initialized at container creation.</p>
+</li>
+<li>
+<p>A volume can be shared and reused between different containers.</p>
+</li>
+<li>
+<p>If you delete a container, its volumes are not deleted (except if you explicitely ask for their deletion).</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_data_volumes">Data Volumes</h3>
+<div class="listingblock">
+<div class="content">
+<pre>The following assumes you are using at least Docker v1.9.
+This is the first release that is using named volumes.</pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_named_volumes">Named volumes</h4>
+<div class="sect4">
+<h5 id="_creation_and_mounting">Creation and Mounting</h5>
+<div class="paragraph">
+<p>There are two ways of creating named volumes:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>either explicitely with the <code>docker volume create</code> command.</p>
+</li>
+<li>
+<p>or implicitely when creating a new container.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>So both of the following will do the same:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">## explicit method
+docker volume create --name my_data
+docker run -it --name my_container -v my_data:/data debian:jessie bash
+## implicit method
+docker run -it --name my_container -v my_data:/data debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;ll let you run one of the two methods (not both!).
+You should be attached to a container.
+We will then write a file in our volume:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">touch /data/hello
+exit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then, let&#8217;s mount a new container.
+This time, the my_data volume will be mounted under /home:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name my_container2 -v my_data:/home debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the container, let&#8217;s check that our volume is correctly mounted under /home:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ls /home
+exit</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_mounting_volumes_used_by_other_containers">Mounting volumes used by other containers</h5>
+<div class="paragraph">
+<p>You can mount volumes used by other containers.
+For instance, the following would mount a /data and a /home directory, both pointing to the my_data volume:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name my_container3 --volumes-from my_container --volumes-from my_container2 debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the container, we can check that both /data and /home contain the hello file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ls /home
+ls /data
+exit</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Be careful with what you do when manipulating volumes.
+It may be not a good idea to mount the same volume on two different mount points in the same container!
+Same thing with concurrent modifications: if you are mounting the same volume in different containers, you most probably want to check for concurrent modifications.</pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_mounting_on_an_existing_directory">Mounting on an existing directory</h5>
+<div class="paragraph">
+<p>If a container contains data in the mount point, then this data is copied onto the new volume.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_find_the_volume_s_used_by_a_container">Find the volume(s) used by a container</h5>
+<div class="paragraph">
+<p>You can use the <code>docker inspect --format "{{ .Mounts }}"</code> command to locate the volume(s) used by a container.
+Running this command on my_container3, we have:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>[{ my_data /var/lib/docker/volumes/my_data/_data /data local  true }
+ { my_data /var/lib/docker/volumes/my_data/_data /home local  true }
+]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_removing_a_volume">Removing a volume</h5>
+<div class="paragraph">
+<p>One thing important to know, is that removing a container won&#8217;t remove its volumes (even if they are not used by any other container).
+This is coherent with the fact that volumes should lived independently from containers.
+So if we do the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker rm my_container
+docker rm my_container2
+docker rm my_container3
+docker volume ls | grep my_data</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We see that we still have a our my_data volume.
+To finally delete the volume:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker volume rm my_data</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_read_only_mode">Read only mode</h5>
+<div class="paragraph">
+<p>Until now, we did not specify any option when mounting our volume.
+It was mounted as read/write.
+We could chose to mount it in read only mode:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name my_container -v my_data:/data:ro debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">root@325a440f674b:/# touch /data/hello
+touch: cannot touch '/data/hello': Read-only file system</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_host_directory_mounting">Host directory mounting</h4>
+<div class="sect4">
+<h5 id="_declare_the_mount">Declare the mount</h5>
+<div class="paragraph">
+<p>Docker also allows to mount a directory of your host.
+You can mount a host directory by specifying a <strong>full path</strong>.
+Create a file called hello, containing the string hello world on your host.
+Then issue:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name host_mounting -v $PWD:/data debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Carreful, if you are running under Windows or OsX, you need to let Docker access the shared directory by going into Docker options under the Shared Drives category.
+Under Windows, you'll also need to specify the path manually as the PWD variable does not exist.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once you booted up your container, we will install vim and then open the hello file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">apt-get update &amp;&amp; apt-get install vim -y
+cd /data
+vim hello</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see the hello world string.
+Now edit the file and add something to it.
+For those not familiar with vim, you want to type <code>i</code> to enter edition mode, then type something, then type <code>esc</code> and finally <code>:wq</code>.
+Now, open the file on a text editor in your host to see the changes.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_read_only_mode_2">Read only mode</h5>
+<div class="paragraph">
+<p>It works like volumes, check the previous section.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_find_the_volume_s_used_by_a_container_2">Find the volume(s) used by a container</h5>
+<div class="paragraph">
+<p>It works like volumes, check the previous section.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_mounting_on_an_existing_directory_2">Mounting on an existing directory</h5>
+<div class="paragraph">
+<p>If a container contains data in the mount point, then this data is kept, and the host directory content overlays the data in the container mount point.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_mounting_a_file">Mounting a file</h5>
+<div class="paragraph">
+<p>Host mount also works with files. The previous example could have been writen:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name host_mounting -v $PWD/hello:/data/hello debian:jessie bash</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_about_data_containers">About Data Containers</h4>
+<div class="paragraph">
+<p>I made a choice to present you only named volumes and to avoid data containers.
+Here is why: when you use data container, Docker really creates unnamed containers behind your back.
+If you destroy your data container, the volume it was using become dangling and its management is not easy.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example that will show you a bit the usage of data containers and the limitation I was mentionning.</p>
+</div>
+<div class="paragraph">
+<p>We will first run interactively a container with an unnamed volume:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name unnamed_volume -v /data debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And in the container:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">touch /data/hello
+exit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s inspect the container for mounted volumes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker inspect --format "{{ .Mounts }}" unnamed_volume</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You end up with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>[{volume 6faa8a43f80bb550b11aa8f3f6093273782fbf5a5674fd5067ba7c7c27942314 /var/lib/docker/volumes/6faa8a43f80bb550b11aa8f3f6093273782fbf5a5674fd5067ba7c7c27942314/_data /data local  true }]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>So you really have a volume stored.
+Now, usually, what you would do to be able to reuse this data container from another container is to use the <code>--volumes-from</code> command:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker run -it --name unnamed_volume2 --volumes-from unnamed_volume debian:jessie bash</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here unnamed_volume2 shares the same unnamed volume with unnamed_volume.
+This volume is mounted under /data.
+Let&#8217;s check this:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">ls /data
+exit</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You should see our dummy hello file.
+So far so good.
+Why do I prefer avoiding this technic might you ask.
+Well, let&#8217;s now delete both our containers after having taken care of remembering our unnamed volume id:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker inspect --format "{{ .Mounts }}" unnamed_volume
+docker rm unnamed_volume
+docker rm unnamed_volume2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And let&#8217;s look for our unnamed volume:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">docker volume ls | grep &lt;volume_id&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>It&#8217;s still there!
+Of course, you could still mount it by its id, to check what it contains, but it&#8217;s far from perfect from a maintenance point of view.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>You could also have issued a `docker rm -v` command to delete any anonymous volumes.</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>I&#8217;m not saying that unnamed volumes and data containers might not be useful sometimes, but most of the case you will probably end up using named containers.
+So, unless you are stuck with a pre 1.9 version of Docker, I strongly suggest you consider named volumes first.
+In any case, you might want to review the <a href="https://docs.docker.com/engine/tutorials/dockervolumes/">Manage data in containers</a> page of the official documentation.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it for this post, next one will show you how you could back up and restore your data, how you can extend volumes with drivers, and  a practical usage of the mounting of a host directory.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+        </section>
+
+        <footer class="post-footer">
+
+
+            <figure class="author-image">
+                <a class="img" href="https://PierreBtz.github.io/author/PierreBtz/" style="background-image: url(https://avatars.githubusercontent.com/u/9881659?v&#x3D;3)"><span class="hidden">Pierre Btz's Picture</span></a>
+            </figure>
+
+            <section class="author">
+                <h4><a href="https://PierreBtz.github.io/author/PierreBtz/">Pierre Btz</a></h4>
+
+                    <p>Read <a href="https://PierreBtz.github.io/author/PierreBtz/">more posts</a> by this author.</p>
+                <div class="author-meta">
+                    
+                    
+                </div>
+            </section>
+
+
+            <section class="share">
+                <h4>Share this post</h4>
+                <a class="icon-twitter" href="https://twitter.com/intent/tweet?text=Docker%20starter%20kit%20part%203%3A%20Commits%2C%20Volumes%20and%20Data%20Management&amp;url=https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html"
+                    onclick="window.open(this.href, 'twitter-share', 'width=550,height=235');return false;">
+                    <span class="hidden">Twitter</span>
+                </a>
+                <a class="icon-facebook" href="https://www.facebook.com/sharer/sharer.php?u=https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html"
+                    onclick="window.open(this.href, 'facebook-share','width=580,height=296');return false;">
+                    <span class="hidden">Facebook</span>
+                </a>
+                <a class="icon-google-plus" href="https://plus.google.com/share?url=https://PierreBtz.github.io/2016/12/11/Docker-starter-kit-part-3-Commits-Volumes-and-Data-Management.html"
+                   onclick="window.open(this.href, 'google-plus-share', 'width=490,height=530');return false;">
+                    <span class="hidden">Google+</span>
+                </a>
+            </section>
+
+        </footer>
+
+
+        <section class="post-comments">
+          <div id="disqus_thread"></div>
+          <script type="text/javascript">
+          var disqus_shortname = 'pierrebtz'; // required: replace example with your forum shortname
+          /* * * DON'T EDIT BELOW THIS LINE * * */
+          (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+          })();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+          <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+        </section>
+
+
+    </article>
+
+</main>
+
+<aside class="read-next">
+</aside>
+
+
+
+        <footer class="site-footer clearfix">
+            <section class="copyright"><a href="https://PierreBtz.github.io">Pierre Beitz</a> &copy; 2016</section>
+            <section class="poweredby">Proudly published with <a href="http://hubpress.io">HubPress</a></section>
+        </footer>
+
+    </div>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/jquery.fitvids.js?v=1481487758800"></script>
+    <script type="text/javascript" src="//PierreBtz.github.io/themes/casper/assets/js/index.js?v=1481487758800"></script>
+
+</body>
+</html>
