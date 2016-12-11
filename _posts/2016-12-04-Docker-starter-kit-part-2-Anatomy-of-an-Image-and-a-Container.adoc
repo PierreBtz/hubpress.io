@@ -46,7 +46,7 @@ docker history maven:3.3.9-jdk-8
 
 And the output:
 
-[source]
+[source, options="nowrap"]
 ----
 IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
 b2ef69e414f5        3 weeks ago         /bin/sh -c #(nop)  CMD ["mvn"]                  0 B
