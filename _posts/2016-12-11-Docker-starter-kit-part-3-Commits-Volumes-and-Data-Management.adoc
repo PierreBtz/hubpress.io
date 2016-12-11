@@ -1,5 +1,8 @@
 # Docker starter kit part 3: Commits, Volumes and Data Management
 
+:hp-tags: HowTo, Docker
+:hp-image: http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/docker.png
+
 In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first] part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
 In the https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html[second part] you then studied what a Docker Image and a Docker Container are made up.
 
@@ -24,7 +27,7 @@ docker run --name demo -it debian:jessie bash
 ----
 
 We will get back to this on a later post, for the moment, let's just say to simplify that we told Docker to attach to the container so that we can run commands interactively.
-You should no have something like this:
+You should now have something like this:
 
 [source]
 ----
@@ -41,7 +44,7 @@ touch hello
 ----
 
 Now, if you remember correctly, we just have created a file named hello in the thin layer of the container.
-First let's check that if we stop and restart are container the file is still here.
+First let's check that if we stop and restart the container the file is still here.
 We will exit the container:
 
 [source,bash]
@@ -115,13 +118,14 @@ At this point, you might starting to understand that the UnionFS is not really w
 With it, data are bound to a container lifecycle.
 You can quickly lose some data by just destroying a container.
 Data sharing between containers is not easily possible either.
-At this point, volume comes into play.
+Now, volume comes into play.
 
 ### Definition
 A volume is a directory that bypasses the UnionFS.
 A volume decouples the data from the lifecycle of the container.
 
 Among its properties are:
+
 * A volume is initialized at container creation.
 * A volume can be shared and reused between different containers.
 * If you delete a container, its volumes are not deleted (except if you explicitely ask for their deletion).
@@ -163,7 +167,7 @@ exit
 ----
 
 Then, let's mount a new container.
-This time, the my_data volume will be mount under /home:
+This time, the my_data volume will be mounted under /home:
 
 [source,bash]
 ----
@@ -180,8 +184,8 @@ exit
 
 ##### Mounting volumes used by other containers
 
-You can mount volumes using by other containers.
-For instance, the following would mount a /data and a /home directory, both pointing to the same volume:
+You can mount volumes used by other containers.
+For instance, the following would mount a /data and a /home directory, both pointing to the my_data volume:
 
 [source,bash]
 ----
@@ -198,10 +202,9 @@ exit
 
 [IMPORTANT]
 ----
-*Be careful* with what you do when manipulating volumes.
-It may be not a good idea to mount the same volume on two different mount points in the same directory!
-Same thing with concurrent modifications.
-If you are mounting the same volume in different containers, you most probably want to check for concurrent modifications.
+Be careful with what you do when manipulating volumes.
+It may be not a good idea to mount the same volume on two different mount points in the same container!
+Same thing with concurrent modifications: if you are mounting the same volume in different containers, you most probably want to check for concurrent modifications.
 ----
 
 ##### Mounting on an existing directory
@@ -271,8 +274,8 @@ docker run -it --name host_mounting -v $PWD:/data debian:jessie bash
 
 [IMPORTANT]
 ----
-Carreful, if you are running under windows or osx, you need to let Docker access the shared directory by going into Docker options under the Shared Drives category.
-Under windows again, you'll need to specify the path manually as the PWD variable does not exist.
+Carreful, if you are running under Windows or OsX, you need to let Docker access the shared directory by going into Docker options under the Shared Drives category.
+Under Windows, you'll also need to specify the path manually as the PWD variable does not exist.
 ----
 
 Once you booted up your container, we will install vim and then open the hello file:
@@ -296,7 +299,7 @@ It works like volumes, check the previous section.
 It works like volumes, check the previous section.
 
 ##### Mounting on an existing directory
-If a container contains data in the mount point, then this data is kept, and the host directory content overlays the container's mount point.
+If a container contains data in the mount point, then this data is kept, and the host directory content overlays the data in the container mount point.
 
 ##### Mounting a file
 Host mount also works with files. The previous example could have been writen:
@@ -309,7 +312,7 @@ docker run -it --name host_mounting -v $PWD/hello:/data/hello debian:jessie bash
 
 I made a choice to present you only named volumes and to avoid data containers.
 Here is why: when you use data container, Docker really creates unnamed containers behind your back.
-If you destroy your data container, the volume it was using become dangling and you have no more way of mounting it to check it.
+If you destroy your data container, the volume it was using become dangling and its management is not easy.
 
 Here is an example that will show you a bit the usage of data containers and the limitation I was mentionning.
 
@@ -382,7 +385,7 @@ Of course, you could still mount it by its id, to check what it contains, but it
 You could also have issued a `docker rm -v` command to delete any anonymous volumes.
 ----
 
-I'm not saying that unnamed volumes and data containers might not be useful sometimes, but most of the case you will probably ended up using named containers.
+I'm not saying that unnamed volumes and data containers might not be useful sometimes, but most of the case you will probably end up using named containers.
 So, unless you are stuck with a pre 1.9 version of Docker, I strongly suggest you consider named volumes first.
 In any case, you might want to review the https://docs.docker.com/engine/tutorials/dockervolumes/[Manage data in containers] page of the official documentation.
 
