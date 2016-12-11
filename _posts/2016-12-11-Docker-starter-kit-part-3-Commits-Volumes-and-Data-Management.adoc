@@ -258,8 +258,9 @@ touch: cannot touch '/data/hello': Read-only file system
 ----
 
 #### Host directory mounting
+##### Declare the mount
 Docker also allows to mount a directory of your host.
-You can mount a host directory by specifying a *full path*/
+You can mount a host directory by specifying a *full path*.
 Create a file called hello, containing the string hello world on your host.
 Then issue:
 
@@ -268,7 +269,41 @@ Then issue:
 docker run -it --name host_mounting -v $PWD:/data debian:jessie bash
 ----
 
+[IMPORTANT]
+----
+Carreful, if you are running under windows or osx, you need to let Docker access the shared directory by going into Docker options under the Shared Drives category.
+Under windows again, you'll need to specify the path manually as the PWD variable does not exist.
+----
 
+Once you booted up your container, we will install vim and then open the hello file:
+
+[source,bash]
+----
+apt-get update && apt-get install vim -y
+cd /data
+vim hello
+----
+
+You should see the hello world string.
+Now edit the file and add something to it.
+For those not familiar with vim, you want to type `i` to enter edition mode, then type something, then type `esc` and finally `:wq`.
+Now, open the file on a text editor in your host to see the changes.
+
+##### Read only mode
+It works like volumes, check the previous section.
+
+##### Find the volume(s) used by a container
+It works like volumes, check the previous section.
+
+##### Mounting on an existing directory
+If a container contains data in the mount point, then this data is kept, and the host directory content overlays the container's mount point.
+
+##### Mounting a file
+Host mount also works with files. The previous example could have been writen:
+[source,bash]
+----
+docker run -it --name host_mounting -v $PWD/hello:/data/hello debian:jessie bash
+----
 
 #### About Data Containers
 
