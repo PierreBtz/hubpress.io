@@ -5,7 +5,6 @@
 
 In the https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html[first] part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
 In the https://pierrebtz.github.io/2016/12/04/Docker-starter-kit-part-2-Anatomy-of-an-Image-and-a-Container.html[second part] you then studied what a Docker Image and a Docker Container are made up.
-
 This third post of the series will dive into how you can manage your data with Docker.
 
 ## UnionFS and persistence
