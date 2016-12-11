@@ -193,7 +193,7 @@ When you build on top of a base image, you are stacking layers on top of all the
 ### Base image
 
 At this point, you might wonder which is the mother of all images.
-If you continue working up the base images from the previous example, you will get to the https://github.com/docker-library/buildpack-deps/blob/1845b3f918f69b4c97912b0d4d68a5658458e84f/jessie/scm/Dockerfile[debian:jessie] image:
+If you continue working up the base images from the previous example, you will get to the https://github.com/tianon/docker-brew-debian/blob/2c836bc53feb12f70a07dacaa6256d4d66624f38/jessie/Dockerfile[debian:jessie] image:
 
 [source, Dockerfile]
 ----
