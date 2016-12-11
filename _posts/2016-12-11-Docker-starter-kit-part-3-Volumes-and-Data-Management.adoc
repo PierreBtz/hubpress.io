@@ -85,9 +85,24 @@ Fortunately, the `docker commit` command is here to help us.
 Let's exit the demo2 container again.
 Then we can commit our demo container:
 
+[source,bash]
+----
+docker commit demo dummyimage
+----
 
+That's it, we have an image ready and we can create new containers which will contain our hello file.
+I'll let you make sure any container created from our dummyimage is containing the hello file.
+You can also check the history of the image to see that we indeed commited a new layer:
 
+[source]
+----
+IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT
+387fe6f1f01a        15 hours ago        bash                                            71 B
+73e72bf822ca        4 weeks ago         /bin/sh -c #(nop)  CMD ["/bin/bash"]            0 B
+<missing>           4 weeks ago         /bin/sh -c #(nop) ADD file:41ea5187c501168...   123 MB
+----
 
+IMPORTANT:
 
 
 
