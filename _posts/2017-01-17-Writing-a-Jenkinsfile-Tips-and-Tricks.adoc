@@ -1,5 +1,6 @@
 # Writing a Jenkinsfile: Tips and Tricks
 
+:hp-image: http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/writing-Jenkinsfile-header.png
 :hp-tags: Jenkins, Jenkinsfile, Pipelines
 
 Jenkins Pipeline are great.
