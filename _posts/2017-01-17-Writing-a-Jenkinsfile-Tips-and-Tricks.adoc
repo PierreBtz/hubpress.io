@@ -1,4 +1,6 @@
-# Tips for writing a Jenkinsfile
+# Writing a Jenkinsfile: Tips and Tricks
+
+:hp-tags: Jenkins, Jenkinsfile, Pipelines
 
 Jenkins Pipeline are great
 They allow the developper to keep its pipeline and its build near its code.
