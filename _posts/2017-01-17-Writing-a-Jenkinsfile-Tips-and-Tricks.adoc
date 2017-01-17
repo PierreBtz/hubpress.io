@@ -5,6 +5,7 @@
 
 Jenkins Pipeline are great.
 They allow the developer to keep its pipeline and its build near its code.
+
 But developing a Pipeline can quickly become cumbersome:
 
 * The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello world.
