@@ -1,16 +1,107 @@
-# Writing a Jenkinsfile
+# Tips for writing a Jenkinsfile
 
 Jenkins Pipeline are great
 They allow the developper to keep its pipeline and its build near its code.
 But developping a Pipeline can quickly become cumbersome:
 
-* Coding in the text area of the Jenkins UI is not 
+* The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than that your basic hello world.
 * Your code can grow and become hard to maintain (yeah, we end up having the same problems in our builds than in the rest of our code!).
 * Validation is not easy...
 
+This post will sum up some technics I found useful to help me be efficient with pipelines.
+Of course the list is not exhaustive.
+I more than interested by any new technic you would like to share in the comments.
+
+## Writing the Jenkinsfile
+
+This part will be focused on the tools you can use to assist you.
+As already mentionned, the Jenkins UI is not really the best place to comfortably write a huge script.
+Nevertheless, never forget its existence.
+When I have doubts, I often create a quick dummy job to validate/invalidate some part of a script.
+
+### The IDE
+
+Well, I won't go into an IDE war, this is far from being the point of article.
+Your favorite java IDE (with potentially a groovy support plugin) will do the trick.
+
+That being said, you can do more than having a simple groovy IDE, you can also teach your IDE to understand the DSL used by Jenkins!
+This works thanks to the GroovyDSL (GDSL).
+A GDSL is a basically a file that will describe the meta language that a DSL uses.
+By putting this file in the classpath of a groovy project, your IDE will be able to assist you write code that follows the DSL.
+Good news is that the Jenkins pipeline expose a GDSL.
+Go to *$jenkins_base_url/pipeline_syntax/gdsl* to get it.
+Then add this file in the classpath of your project and voilà, your IDE can now autocomplete!
+
+Note that I only tested this feature in Intellij, but this should work in other groovy compatible IDEs.
+Also, plugins might enrich the DSL without being described in the GDSL.
+
+### The linter
+
+During development of a pipeline, it's easy to make a typo in your Jenkinsfile and end up with an invalide Jenkinsfile.
+This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it.
+Good news it that there is a way to shorten this feedback loop.
+
+Jenkins offers a linter for your Jenkinsfile.
+Best way to use the linter is to the JenkinsCLI.
+You will need the https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Model+Definition+Plugin[Pipeline Model Definition] version 0.7 at least.
+You can then ask Jenkins to lint your Jenkinsfile:
+
+[source, bash]
+----
+curl -O $jenkins_base_url/jnlpJars/jenkins-cli.jar
+java -jar jenkins-cli.jar -s $jenkins_base_url login --username $username --password $password
+java -jar jenkins-cli.jar -s $jenkins_base_url declarative-linter<Jenkinsfile
+----
+
+### The Pipeline Syntax
+
+Even with the IDE assisting you, it is sometimes hard to correctly write what you wish to do:
+
+* Plugins are not exposed in the GDSL
+* The syntax might be cumbersome
+* Some parameters might seem obscure
+
+Good news is that there is a Pipeline Syntax page in Jenkins that is here to:
+
+* Help you understand the different options you have
+* Generate some code snippets for you
+
+You can reach this page by browsing *$jenkins_base_url/pipeline_syntax*.
+I won't go into details, the usage of the page is pretty self explanatory, you choose the step you wish to generate, then you fill in the options as you would in a good old freestyle job (click on the quotemarks if you need assistance), and finally you click the `Generate Pipeline Script` button to get your snippet.
+On the following screenshot, I generated a junit step.
+Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into *keepLingStdio* in the code):
+
+
+The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference of many variables you have access to in the pipeline.
+
+Like for the GDSL, plugin sadly do not always support that page.
+
+## Organizing your pipeline
+
+With pipelines, you can (and you should!) now treat your build as you treat your code!
+This means for instance that you should keep your pipeline https://en.wikipedia.org/wiki/Don't_repeat_yourself[DRY].
+
+### Extracting functions
+
+As for the rest of the code, try to find pattern to be able to extract methods and reuse your code.
+Do not just copy and paste.
+Of course functions will not help you from a pipeline to another, but it is a good starting point.
+If you have the same function duplicated in multiple pipelines, it will help you to go to the next step.
+If the logic is duplicated throughtout your pipelines, the next step will take more time (and will be more error prone).
+
+### Pipeline Shared Libraries
+
+The https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Shared+Groovy+Libraries+Plugin[Pipeline Shared Libraries Plugin] allows a developer to share and reuse code between pipelines.
+I won't go into details on how to use it here, it is worth a complete article, but here is a simple example that I encountered that will convince you of its power.
+All our builds had to notify an SCM.
+The only way to correctly catch all the cases (build success, build error), was by building inside a try/catch block.
+So we ended up starting all our builds duplicating the following logic:
+
+
+
 During development of a pipeline, it's easy to make a typo in your Jenkinsfile and end up with an invalide Jenkisfile. This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it. The feedback loop is long, you lose time...
 Good news it that there are some ways to shorten this feedback loop.
-Create your pipeline from the UI
+Create your pipeline from the UIob 
 You often don't need to directly write your pipeline in a Jenkinsfile (this should be your target though). You can just write it directly in the Jenkins UI by choosing Pipeline Script for your Pipeline Definition.
 Note that there are some stuff you will miss with method: checkout command (that you can emulate with a git command, and change later), operations on branches...
 Validate your pipeline before commiting
