@@ -2,17 +2,17 @@
 
 :hp-tags: Jenkins, Jenkinsfile, Pipelines
 
-Jenkins Pipeline are great
-They allow the developper to keep its pipeline and its build near its code.
-But developping a Pipeline can quickly become cumbersome:
+Jenkins Pipeline are great.
+They allow the developer to keep its pipeline and its build near its code.
+But developing a Pipeline can quickly become cumbersome:
 
-* The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than that your basic hello world.
+* The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello world.
 * Your code can grow and become hard to maintain (yeah, we end up having the same problems in our builds than in the rest of our code!).
 * Validation is not easy...
 
 This post will sum up some technics I found useful to help me be efficient with pipelines.
 Of course the list is not exhaustive.
-I more than interested by any new technic you would like to share in the comments.
+I am more than interested by any new technic you would like to share in the comments.
 
 ## Writing the Jenkinsfile
 
@@ -23,28 +23,28 @@ When I have doubts, I often create a quick dummy job to validate/invalidate some
 
 ### The IDE
 
-Well, I won't go into an IDE war, this is far from being the point of article.
+Well, I won't go into an IDE war, this is far from being the point of the article.
 Your favorite java IDE (with potentially a groovy support plugin) will do the trick.
 
 That being said, you can do more than having a simple groovy IDE, you can also teach your IDE to understand the DSL used by Jenkins!
 This works thanks to the GroovyDSL (GDSL).
-A GDSL is a basically a file that will describe the meta language that a DSL uses.
+A GDSL is basically a file that will describe the meta language that a DSL uses.
 By putting this file in the classpath of a groovy project, your IDE will be able to assist you write code that follows the DSL.
-Good news is that the Jenkins pipeline expose a GDSL.
-Go to *$jenkins_base_url/pipeline_syntax/gdsl* to get it.
+The good news is that the Jenkins pipeline exposes a GDSL.
+Go to _$jenkins_base_url/pipeline_syntax/gdsl_ to get it.
 Then add this file in the classpath of your project and voilà, your IDE can now autocomplete!
 
 Note that I only tested this feature in Intellij, but this should work in other groovy compatible IDEs.
-Also, plugins might enrich the DSL without being described in the GDSL.
+Also, plugins might enrich the DSL without being described in the GDSL, so don't expect the autocomplete to be absolutely complete.
 
 ### The linter
 
 During development of a pipeline, it's easy to make a typo in your Jenkinsfile and end up with an invalide Jenkinsfile.
 This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it.
-Good news it that there is a way to shorten this feedback loop.
+The good news is that there is a way to shorten this feedback loop.
 
 Jenkins offers a linter for your Jenkinsfile.
-Best way to use the linter is to the JenkinsCLI.
+Best way to use the linter is with the JenkinsCLI.
 You will need the https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Model+Definition+Plugin[Pipeline Model Definition] version 0.7 at least.
 You can then ask Jenkins to lint your Jenkinsfile:
 
@@ -63,19 +63,19 @@ Even with the IDE assisting you, it is sometimes hard to correctly write what yo
 * The syntax might be cumbersome
 * Some parameters might seem obscure
 
-Good news is that there is a Pipeline Syntax page in Jenkins that is here to:
+There is a Pipeline Syntax page in Jenkins that is here to:
 
 * Help you understand the different options you have
 * Generate some code snippets for you
 
-You can reach this page by browsing *$jenkins_base_url/pipeline_syntax*.
+You can reach this page by browsing _$jenkins_base_url/pipeline_syntax_.
 I won't go into details, the usage of the page is pretty self explanatory, you choose the step you wish to generate, then you fill in the options as you would in a good old freestyle job (click on the quotemarks if you need assistance), and finally you click the `Generate Pipeline Script` button to get your snippet.
 On the following screenshot, I generated a junit step.
-Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into *keepLingStdio* in the code):
+Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into _keepLingStdio_ in the code):
 
 image::https://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/writing-Jenkinsfile.png[Pipeline Syntax Page]
 
-The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference of many variables you have access to in the pipeline.
+The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference to the many variables you have access to in the pipeline.
 
 Like for the GDSL, plugin sadly do not always support that page.
 
@@ -89,13 +89,15 @@ This should help you getting started on the right track.
 With pipelines, you can (and you should!) now treat your build as you treat your code!
 This means for instance that you should keep your pipeline https://en.wikipedia.org/wiki/Don't_repeat_yourself[DRY].
 
+*Clean coding can now be applied to your pipelines!*
+
 ### Extracting functions
 
-As for the rest of the code, try to find pattern to be able to extract methods and reuse your code.
+As for the rest of the code, try to extract methods and reuse your code.
 Do not just copy and paste.
 Of course functions will not help you from a pipeline to another, but it is a good starting point.
 If you have the same function duplicated in multiple pipelines, it will help you to go to the next step.
-If the logic is duplicated throughtout your pipelines, the next step will take more time (and will be more error prone).
+If the logic is duplicated throughout your pipelines, the next step will take more time (and will be more error prone).
 
 ### Pipeline Shared Libraries
 
@@ -110,21 +112,23 @@ So we ended up starting all our builds duplicating the following logic:
 #!/usr/bin/groovy
 
 try {
-	notify(start)
+    notify(start)
     //put here all your pipeline
     notify(success)
 } catch(exception) {
-	notify(failure)
+    notify(failure)
 }
 
-def notify(state) {
-	//notify scm
+def notify(state) {	
+    //notify scm
 }
 ----
 
-As you can see, a lot of duplicated between the builds, with a huge maintenance problem.
+As you can see, there is a lot of duplicated code between the builds, with a huge maintenance problem.
+
 What is happening is the SCM API is changing for instance?
 I would need to iterate over all the pipelines to update the code of the notify function.
+
 Same issue if we can finally get rid of this try/catch structure (side note, that might soon be the case as we will see in the last part of this article).
 I would have to manually change all the Jenkinsfiles.
 
@@ -137,17 +141,17 @@ In the library I wrote:
 #!/usr/bin/groovy
 
 def call(body) {
-	try {
-		notify(start)
-    	body()
+    try {
+        notify(start)
+        body()
     	notify(success)
-	} catch(exception) {
-		notify(failure)
+    } catch(exception) {
+        notify(failure)
     }
 }
 
 def notify(state) {
-	//notify scm
+    //notify scm
 }
 ----
 
@@ -158,25 +162,25 @@ And finally, in a Jenkinsfile, I end up writing:
 #!/usr/bin/groovy
 
 notifiableBuild {
-	//put here all your pipeline
+    //put here all your pipeline
 }
 ----
 
-To learn more about this, you should the https://jenkins.io/doc/book/pipeline/shared-libraries/[official documentation of the plugin], which will help you getting started.
+To learn more about this, you should visit the https://jenkins.io/doc/book/pipeline/shared-libraries/[official documentation of the plugin], which will help you getting started.
 
 ## The Experimental Corner
 
 In this part, I will share two projects you should keep an eye on as they should help a bit more spreading the usage of the pipelines.
-Note that the two projects are a very early stage of development.
+Note that the two projects are at a very early stage of development.
 
 ### Jenkins Blue Ocean Pipeline Editor Plugin
 
 https://github.com/jenkinsci/blueocean-pipeline-editor-plugin[This plugin] is using the https://jenkins.io/projects/blueocean/[Blue Ocean interface].
-Side note, if you don't know it, you should definitively have a look as it is far superior to the Jenkins 'classic' interface to display pipelines.
+Side note, if you don't know Blue Ocean, you should definitively have a look as it is far superior to the Jenkins 'classic' interface to display pipelines.
 Note that it is also work in progress (it is in a beta stage), but I use it in production everyday without any issue (except for the missing features of course).
 
-That being said, this new Pipeline Editor plugin is a new interface to graphically design your pipeline.
-This is at very alpha stage, but it was https://youtu.be/TsWkZLLU-s4?t=22m35s[demonstrated in the last Jenkins Meetup] (note that the rest of the meetup is also worth your time if you are into Jenkins).
+That being said, this new Pipeline Editor plugin proposes a new interface to graphically design your pipeline.
+This is at very alpha stage, but it was https://youtu.be/TsWkZLLU-s4?t=22m35s[demonstrated in the last Jenkins Meetup] (note that the rest of the meetup is also worth your time if you are into Jenkins) and seems very promising.
 
 ### Declarative Pipeline
 
@@ -184,7 +188,7 @@ The official name of this plugin is the https://github.com/jenkinsci/pipeline-mo
 Its aim is to give a more config like touch to the pipeline.
 Code vs Config, here we are again (let's not replay maven vs gradle and gulp vs grunt all over again...)!
 Again, the plugin was https://youtu.be/TsWkZLLU-s4?t=27m35s[demoed in the last Jenkins Online Meetup].
-The API does not seem stable for the moment, but some stuff seems very intersting.
+The API does not seem stable for the moment, but some stuff seems very interesting.
 For instance, the notification issue I raised before could be adressed with something like:
 
 [source, groovy]
@@ -192,8 +196,7 @@ For instance, the notification issue I raised before could be adressed with some
 #!/usr/bin/groovy
 
 post {
-	always {
-    	
+    always {  	
     }
     
     success {
