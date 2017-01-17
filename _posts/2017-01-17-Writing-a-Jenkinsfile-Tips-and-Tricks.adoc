@@ -73,6 +73,7 @@ I won't go into details, the usage of the page is pretty self explanatory, you c
 On the following screenshot, I generated a junit step.
 Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into *keepLingStdio* in the code):
 
+image::https://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/writing-Jenkinsfile.png[Pipeline Syntax Page]
 
 The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference of many variables you have access to in the pipeline.
 
