@@ -1,4 +1,290 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Sun, 25 Dec 2016 19:36:42 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Docker starter kit part 3: Commits, Volumes and Data Management]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 17 Jan 2017 22:49:12 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Jenkins Pipeline are great.
+They allow the developer to keep its pipeline and its build near its code.
+But developing a Pipeline can quickly become cumbersome:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello world.</p>
+</li>
+<li>
+<p>Your code can grow and become hard to maintain (yeah, we end up having the same problems in our builds than in the rest of our code!).</p>
+</li>
+<li>
+<p>Validation is not easy&#8230;&#8203;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This post will sum up some technics I found useful to help me be efficient with pipelines.
+Of course the list is not exhaustive.
+I am more than interested by any new technic you would like to share in the comments.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_writing_the_jenkinsfile">Writing the Jenkinsfile</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This part will be focused on the tools you can use to assist you.
+As already mentionned, the Jenkins UI is not really the best place to comfortably write a huge script.
+Nevertheless, never forget its existence.
+When I have doubts, I often create a quick dummy job to validate/invalidate some part of a script.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_ide">The IDE</h3>
+<div class="paragraph">
+<p>Well, I won&#8217;t go into an IDE war, this is far from being the point of the article.
+Your favorite java IDE (with potentially a groovy support plugin) will do the trick.</p>
+</div>
+<div class="paragraph">
+<p>That being said, you can do more than having a simple groovy IDE, you can also teach your IDE to understand the DSL used by Jenkins!
+This works thanks to the GroovyDSL (GDSL).
+A GDSL is basically a file that will describe the meta language that a DSL uses.
+By putting this file in the classpath of a groovy project, your IDE will be able to assist you write code that follows the DSL.
+The good news is that the Jenkins pipeline exposes a GDSL.
+Go to <em>$jenkins_base_url/pipeline_syntax/gdsl</em> to get it.
+Then add this file in the classpath of your project and voilà, your IDE can now autocomplete!</p>
+</div>
+<div class="paragraph">
+<p>Note that I only tested this feature in Intellij, but this should work in other groovy compatible IDEs.
+Also, plugins might enrich the DSL without being described in the GDSL, so don&#8217;t expect the autocomplete to be absolutely complete.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_linter">The linter</h3>
+<div class="paragraph">
+<p>During development of a pipeline, it&#8217;s easy to make a typo in your Jenkinsfile and end up with an invalide Jenkinsfile.
+This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it.
+The good news is that there is a way to shorten this feedback loop.</p>
+</div>
+<div class="paragraph">
+<p>Jenkins offers a linter for your Jenkinsfile.
+Best way to use the linter is with the JenkinsCLI.
+You will need the <a href="https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Model+Definition+Plugin">Pipeline Model Definition</a> version 0.7 at least.
+You can then ask Jenkins to lint your Jenkinsfile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -O $jenkins_base_url/jnlpJars/jenkins-cli.jar
+java -jar jenkins-cli.jar -s $jenkins_base_url login --username $username --password $password
+java -jar jenkins-cli.jar -s $jenkins_base_url declarative-linter&lt;Jenkinsfile</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_pipeline_syntax">The Pipeline Syntax</h3>
+<div class="paragraph">
+<p>Even with the IDE assisting you, it is sometimes hard to correctly write what you wish to do:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Plugins are not exposed in the GDSL</p>
+</li>
+<li>
+<p>The syntax might be cumbersome</p>
+</li>
+<li>
+<p>Some parameters might seem obscure</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There is a Pipeline Syntax page in Jenkins that is here to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Help you understand the different options you have</p>
+</li>
+<li>
+<p>Generate some code snippets for you</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can reach this page by browsing <em>$jenkins_base_url/pipeline_syntax</em>.
+I won&#8217;t go into details, the usage of the page is pretty self explanatory, you choose the step you wish to generate, then you fill in the options as you would in a good old freestyle job (click on the quotemarks if you need assistance), and finally you click the <code>Generate Pipeline Script</code> button to get your snippet.
+On the following screenshot, I generated a junit step.
+Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into <em>keepLingStdio</em> in the code):</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/writing-Jenkinsfile.png" alt="Pipeline Syntax Page">
+</div>
+</div>
+<div class="paragraph">
+<p>The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference to the many variables you have access to in the pipeline.</p>
+</div>
+<div class="paragraph">
+<p>Like for the GDSL, plugin sadly do not always support that page.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_best_practices">Best Practices</h3>
+<div class="paragraph">
+<p>CloudBees proposed a good article with <a href="https://www.cloudbees.com/blog/top-10-best-practices-jenkins-pipeline-plugin">ten best practices for Jenkins Pipeline Plugin</a>.
+This should help you getting started on the right track.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_organizing_your_pipeline">Organizing your pipeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With pipelines, you can (and you should!) now treat your build as you treat your code!
+This means for instance that you should keep your pipeline <a href="https://en.wikipedia.org/wiki/Don&#8217;t_repeat_yourself">DRY</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Clean coding can now be applied to your pipelines!</strong></p>
+</div>
+<div class="sect2">
+<h3 id="_extracting_functions">Extracting functions</h3>
+<div class="paragraph">
+<p>As for the rest of the code, try to extract methods and reuse your code.
+Do not just copy and paste.
+Of course functions will not help you from a pipeline to another, but it is a good starting point.
+If you have the same function duplicated in multiple pipelines, it will help you to go to the next step.
+If the logic is duplicated throughout your pipelines, the next step will take more time (and will be more error prone).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pipeline_shared_libraries">Pipeline Shared Libraries</h3>
+<div class="paragraph">
+<p>The <a href="https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Shared+Groovy+Libraries+Plugin">Pipeline Shared Libraries Plugin</a> allows a developer to share and reuse code between pipelines.
+I won&#8217;t go into details on how to use it here, it is worth a complete article, but here is a simple example that I encountered that will convince you of its power.
+All our builds had to notify an SCM.
+The only way to correctly catch all the cases (build success, build error), was by building inside a try/catch block.
+So we ended up starting all our builds duplicating the following logic:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+try {
+    notify(start)
+    //put here all your pipeline
+    notify(success)
+} catch(exception) {
+    notify(failure)
+}
+
+def notify(state) {
+    //notify scm
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see, there is a lot of duplicated code between the builds, with a huge maintenance problem.</p>
+</div>
+<div class="paragraph">
+<p>What is happening is the SCM API is changing for instance?
+I would need to iterate over all the pipelines to update the code of the notify function.</p>
+</div>
+<div class="paragraph">
+<p>Same issue if we can finally get rid of this try/catch structure (side note, that might soon be the case as we will see in the last part of this article).
+I would have to manually change all the Jenkinsfiles.</p>
+</div>
+<div class="paragraph">
+<p>With the Shared Libraries Plugin, I was able to enrich the DSL with our particular use case.
+In the library I wrote:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">//vars/notifiableBuild.groovy
+#!/usr/bin/groovy
+
+def call(body) {
+    try {
+        notify(start)
+        body()
+    	notify(success)
+    } catch(exception) {
+        notify(failure)
+    }
+}
+
+def notify(state) {
+    //notify scm
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And finally, in a Jenkinsfile, I end up writing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+notifiableBuild {
+    //put here all your pipeline
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To learn more about this, you should visit the <a href="https://jenkins.io/doc/book/pipeline/shared-libraries/">official documentation of the plugin</a>, which will help you getting started.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_experimental_corner">The Experimental Corner</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this part, I will share two projects you should keep an eye on as they should help a bit more spreading the usage of the pipelines.
+Note that the two projects are at a very early stage of development.</p>
+</div>
+<div class="sect2">
+<h3 id="_jenkins_blue_ocean_pipeline_editor_plugin">Jenkins Blue Ocean Pipeline Editor Plugin</h3>
+<div class="paragraph">
+<p><a href="https://github.com/jenkinsci/blueocean-pipeline-editor-plugin">This plugin</a> is using the <a href="https://jenkins.io/projects/blueocean/">Blue Ocean interface</a>.
+Side note, if you don&#8217;t know Blue Ocean, you should definitively have a look as it is far superior to the Jenkins 'classic' interface to display pipelines.
+Note that it is also work in progress (it is in a beta stage), but I use it in production everyday without any issue (except for the missing features of course).</p>
+</div>
+<div class="paragraph">
+<p>That being said, this new Pipeline Editor plugin proposes a new interface to graphically design your pipeline.
+This is at very alpha stage, but it was <a href="https://youtu.be/TsWkZLLU-s4?t=22m35s">demonstrated in the last Jenkins Meetup</a> (note that the rest of the meetup is also worth your time if you are into Jenkins) and seems very promising.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_declarative_pipeline">Declarative Pipeline</h3>
+<div class="paragraph">
+<p>The official name of this plugin is the <a href="https://github.com/jenkinsci/pipeline-model-definition-plugin">Pipeline Model Definition Plugin</a>.
+Its aim is to give a more config like touch to the pipeline.
+Code vs Config, here we are again (let&#8217;s not replay maven vs gradle and gulp vs grunt all over again&#8230;&#8203;)!
+Again, the plugin was <a href="https://youtu.be/TsWkZLLU-s4?t=27m35s">demoed in the last Jenkins Online Meetup</a>.
+The API does not seem stable for the moment, but some stuff seems very interesting.
+For instance, the notification issue I raised before could be adressed with something like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+post {
+    always {
+    }
+
+    success {
+    	notify(success)
+    }
+
+    failure {
+    	notify(failure)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it for this post, do not hesitate to post any comment you might have!</p>
+</div>
+</div>
+</div>
+</div>]]></description><link>https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html</guid><category><![CDATA[Jenkins]]></category><category><![CDATA[ Jenkinsfile]]></category><category><![CDATA[ Pipelines]]></category><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Tue, 17 Jan 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Docker starter kit part 3: Commits, Volumes and Data Management]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>In the <a href="https://pierrebtz.github.io/2016/11/27/Docker-starter-kit-part-1-Getting-Started-Containers-lifecycle.html">first</a> part of this blog series on Docker, you had the opportunity to follow a Docker basic tutorial and to have an overview of the lifecycle of a Docker container.
