@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+    <title>Writing a Jenkinsfile: Tips and Tricks</title>
+
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <meta name="description" content="">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Writing a Jenkinsfile: Tips and Tricks">
+    <meta name="twitter:description" content="">
+
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Writing a Jenkinsfile: Tips and Tricks">
+    <meta property="og:description" content="">
+
+    <!-- <meta name="twitter:site" content="">
+
+<meta name="twitter:creator" content="">
+
+<meta name="google-site-verification" content="">
+
+<meta property="fb:admins" content="">
+ -->
+
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link href="/apple-touch-icon-precomposed.png" rel="apple-touch-icon">
+
+    <link href="//fonts.googleapis.com/" rel="dns-prefetch">
+    <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
+
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/main.min.css?v=1484693352005"/>
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/custom.css?v=1484693352005"/>
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1484693352005"/>
+
+
+
+
+    <script type="text/javascript">
+      var ga_ua = 'UA-XXXXX-X';
+      
+      var disqus_shortname = 'example';
+      
+      var enable_pjax = true;
+
+      // Pace Options
+      // ==============
+      window.paceOptions = {
+        catchupTime: 100,
+        minTime: 100,
+        elements: false,
+        restartOnRequestAfter: 500,
+        startOnPageLoad: false
+      }
+
+      // Ghostium Globals
+      // ==============
+      window.GHOSTIUM = {};
+      GHOSTIUM.haveGA = typeof ga_ua !== 'undefined' && ga_ua !== 'UA-XXXXX-X';
+      GHOSTIUM.haveDisqus = typeof disqus_shortname !== 'undefined' && disqus_shortname !== 'example';
+      GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
+    </script>
+
+    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1484693352005"></script>
+
+    <link rel="canonical" href="https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html" />
+    <meta name="referrer" content="origin" />
+    
+    <meta property="og:site_name" content="Pierre Beitz" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Writing a Jenkinsfile: Tips and Tricks" />
+    <meta property="og:description" content="Jenkins Pipeline are great. They allow the developer to keep its pipeline and its build near its code. But developing a Pipeline can quickly become cumbersome: The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello" />
+    <meta property="og:url" content="https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html" />
+    <meta property="article:tag" content="Jenkins" />
+    <meta property="article:tag" content=" Jenkinsfile" />
+    <meta property="article:tag" content=" Pipelines" />
+    
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Writing a Jenkinsfile: Tips and Tricks" />
+    <meta name="twitter:description" content="Jenkins Pipeline are great. They allow the developer to keep its pipeline and its build near its code. But developing a Pipeline can quickly become cumbersome: The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello" />
+    <meta name="twitter:url" content="https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html" />
+    
+    <script type="application/ld+json">
+null
+    </script>
+
+    <meta name="generator" content="HubPress" />
+    <link rel="alternate" type="application/rss+xml" title="Pierre Beitz" href="https://PierreBtz.github.io/rss/" />
+  </head>
+  <body class="post-template tag-Jenkins tag-Jenkinsfile tag-Pipelines">
+
+    <button data-action="open-drawer" id="drawer-button" class="drawer-button"><i class="fa fa-bars"></i></button>
+    <nav tabindex="-1" class="drawer">
+      <div class="drawer-container">
+        <!--.drawer-search(role="search")-->
+        <ul role="navigation" class="drawer-list">
+          
+          <li class="drawer-list-item">
+            <a href="https://PierreBtz.github.io" data-pjax>
+              <i class="fa fa-home"></i>Home
+            </a>
+          </li>
+          <!-- <li class="drawer-list-item">
+            <a href="https://PierreBtz.github.io" title="Pierre Beitz" data-pjax>
+              <i class="fa fa-list-alt"></i>All posts
+            </a>
+          </li> -->
+          <li class="drawer-list-item">
+            <a href="https://PierreBtz.github.io/rss/">
+              <i class="fa fa-rss"></i>Subscribe to Feed
+            </a>
+          </li>
+          <li class="drawer-list-divider"></li>
+          <li class="drawer-list-item drawer-list-title">
+            Follow me
+          </li>
+          
+          
+          <li class="drawer-list-item">
+            <a href="https://twitter.com/PiBtz" title="Twitter" target="_blank">
+              <i class="fa fa-twitter"></i>Twitter
+            </a>
+          </li>
+          <li class="drawer-list-item">
+            <a href="https://github.com/PierreBtz" title="Github" target="_blank">
+              <i class="fa fa-github"></i>Github
+            </a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="drawer-overlay"></div>
+    <main id="container" role="main" class="container">
+      <div class="surface">
+        <div class="surface-container">
+          <div data-pjax-container class="content">
+            
+<section class="wrapper wrapper-post">
+  <div class="wrapper-container">
+    <article itemscope itemtype="http://schema.org/BlogPosting" role="article" class="post post tag-Jenkins tag-Jenkinsfile tag-Pipelines">
+        <section class="post-container">
+          <header class="post-header">
+            <ul class="post-meta-list">
+              <li class="post-meta-item">
+                <time datetime="2017-01-17" itemprop="datePublished">
+                  a day ago
+                </time>
+              </li>
+                <li class="post-meta-item">
+                  <span class="tags"><i class="fa fa-tags"></i>
+                      <span>
+                      <a href="https://PierreBtz.github.io/tag/Jenkins/">Jenkins</a>, <a href="https://PierreBtz.github.io/tag/Jenkinsfile/"> Jenkinsfile</a>, <a href="https://PierreBtz.github.io/tag/Pipelines/"> Pipelines</a></span>
+                  </span>
+                </li>
+              <li class="post-meta-item">
+                <a href="#disqus_thread" data-disqus-identifier="">Comments</a>
+              </li>
+            </ul>
+            <h1 itemprop="name headline" class="post-title"><a href="https://PierreBtz.github.io/2017/01/17/Writing-a-Jenkinsfile-Tips-and-Tricks.html" itemprop="url" data-pjax title="Writing a Jenkinsfile: Tips and Tricks">Writing a Jenkinsfile: Tips and Tricks</a></h1>
+            <!--h2 itemprop="about" class="post-subtitle"></h2-->
+          </header>
+          <aside class="post-side">
+            <div class="post-author">
+                <a href="" class="post-author-avatar">
+                  <img src="https://avatars.githubusercontent.com/u/9881659?v&#x3D;3" alt="Pierre Btz">
+                </a>
+              <div class="post-author-info">
+                <a href="" class="post-author-name">
+                  Pierre Btz
+                </a>
+                <p class="post-author-bio"></p>
+              </div>
+            </div>
+          </aside>
+          <div itemprop="articleBody" class="post-body">
+            <div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Jenkins Pipeline are great.
+They allow the developer to keep its pipeline and its build near its code.
+But developing a Pipeline can quickly become cumbersome:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The text area of the Jenkins UI is not really convenient when you start writing pipelines a bit more complex than your basic hello world.</p>
+</li>
+<li>
+<p>Your code can grow and become hard to maintain (yeah, we end up having the same problems in our builds than in the rest of our code!).</p>
+</li>
+<li>
+<p>Validation is not easy&#8230;&#8203;</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This post will sum up some technics I found useful to help me be efficient with pipelines.
+Of course the list is not exhaustive.
+I am more than interested by any new technic you would like to share in the comments.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_writing_the_jenkinsfile">Writing the Jenkinsfile</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This part will be focused on the tools you can use to assist you.
+As already mentionned, the Jenkins UI is not really the best place to comfortably write a huge script.
+Nevertheless, never forget its existence.
+When I have doubts, I often create a quick dummy job to validate/invalidate some part of a script.</p>
+</div>
+<div class="sect2">
+<h3 id="_the_ide">The IDE</h3>
+<div class="paragraph">
+<p>Well, I won&#8217;t go into an IDE war, this is far from being the point of the article.
+Your favorite java IDE (with potentially a groovy support plugin) will do the trick.</p>
+</div>
+<div class="paragraph">
+<p>That being said, you can do more than having a simple groovy IDE, you can also teach your IDE to understand the DSL used by Jenkins!
+This works thanks to the GroovyDSL (GDSL).
+A GDSL is basically a file that will describe the meta language that a DSL uses.
+By putting this file in the classpath of a groovy project, your IDE will be able to assist you write code that follows the DSL.
+The good news is that the Jenkins pipeline exposes a GDSL.
+Go to <em>$jenkins_base_url/pipeline_syntax/gdsl</em> to get it.
+Then add this file in the classpath of your project and voilà, your IDE can now autocomplete!</p>
+</div>
+<div class="paragraph">
+<p>Note that I only tested this feature in Intellij, but this should work in other groovy compatible IDEs.
+Also, plugins might enrich the DSL without being described in the GDSL, so don&#8217;t expect the autocomplete to be absolutely complete.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_linter">The linter</h3>
+<div class="paragraph">
+<p>During development of a pipeline, it&#8217;s easy to make a typo in your Jenkinsfile and end up with an invalide Jenkinsfile.
+This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it.
+The good news is that there is a way to shorten this feedback loop.</p>
+</div>
+<div class="paragraph">
+<p>Jenkins offers a linter for your Jenkinsfile.
+Best way to use the linter is with the JenkinsCLI.
+You will need the <a href="https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Model+Definition+Plugin">Pipeline Model Definition</a> version 0.7 at least.
+You can then ask Jenkins to lint your Jenkinsfile:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">curl -O $jenkins_base_url/jnlpJars/jenkins-cli.jar
+java -jar jenkins-cli.jar -s $jenkins_base_url login --username $username --password $password
+java -jar jenkins-cli.jar -s $jenkins_base_url declarative-linter&lt;Jenkinsfile</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_the_pipeline_syntax">The Pipeline Syntax</h3>
+<div class="paragraph">
+<p>Even with the IDE assisting you, it is sometimes hard to correctly write what you wish to do:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Plugins are not exposed in the GDSL</p>
+</li>
+<li>
+<p>The syntax might be cumbersome</p>
+</li>
+<li>
+<p>Some parameters might seem obscure</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>There is a Pipeline Syntax page in Jenkins that is here to:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Help you understand the different options you have</p>
+</li>
+<li>
+<p>Generate some code snippets for you</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You can reach this page by browsing <em>$jenkins_base_url/pipeline_syntax</em>.
+I won&#8217;t go into details, the usage of the page is pretty self explanatory, you choose the step you wish to generate, then you fill in the options as you would in a good old freestyle job (click on the quotemarks if you need assistance), and finally you click the <code>Generate Pipeline Script</code> button to get your snippet.
+On the following screenshot, I generated a junit step.
+Note the presence of the help button (right red arrow) that allowed me to quickly understand the 'Retain long standard output/error' (which finally translated into <em>keepLingStdio</em> in the code):</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="https://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/writing-Jenkinsfile.png" alt="Pipeline Syntax Page">
+</div>
+</div>
+<div class="paragraph">
+<p>The final part of the Pipeline Syntax page (circled in red in the screenshot) is a reference to the many variables you have access to in the pipeline.</p>
+</div>
+<div class="paragraph">
+<p>Like for the GDSL, plugin sadly do not always support that page.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_best_practices">Best Practices</h3>
+<div class="paragraph">
+<p>CloudBees proposed a good article with <a href="https://www.cloudbees.com/blog/top-10-best-practices-jenkins-pipeline-plugin">ten best practices for Jenkins Pipeline Plugin</a>.
+This should help you getting started on the right track.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_organizing_your_pipeline">Organizing your pipeline</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>With pipelines, you can (and you should!) now treat your build as you treat your code!
+This means for instance that you should keep your pipeline <a href="https://en.wikipedia.org/wiki/Don&#8217;t_repeat_yourself">DRY</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>Clean coding can now be applied to your pipelines!</strong></p>
+</div>
+<div class="sect2">
+<h3 id="_extracting_functions">Extracting functions</h3>
+<div class="paragraph">
+<p>As for the rest of the code, try to extract methods and reuse your code.
+Do not just copy and paste.
+Of course functions will not help you from a pipeline to another, but it is a good starting point.
+If you have the same function duplicated in multiple pipelines, it will help you to go to the next step.
+If the logic is duplicated throughout your pipelines, the next step will take more time (and will be more error prone).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pipeline_shared_libraries">Pipeline Shared Libraries</h3>
+<div class="paragraph">
+<p>The <a href="https://wiki.jenkins-ci.org/display/JENKINS/Pipeline+Shared+Groovy+Libraries+Plugin">Pipeline Shared Libraries Plugin</a> allows a developer to share and reuse code between pipelines.
+I won&#8217;t go into details on how to use it here, it is worth a complete article, but here is a simple example that I encountered that will convince you of its power.
+All our builds had to notify an SCM.
+The only way to correctly catch all the cases (build success, build error), was by building inside a try/catch block.
+So we ended up starting all our builds duplicating the following logic:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+try {
+    notify(start)
+    //put here all your pipeline
+    notify(success)
+} catch(exception) {
+    notify(failure)
+}
+
+def notify(state) {
+    //notify scm
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As you can see, there is a lot of duplicated code between the builds, with a huge maintenance problem.</p>
+</div>
+<div class="paragraph">
+<p>What is happening is the SCM API is changing for instance?
+I would need to iterate over all the pipelines to update the code of the notify function.</p>
+</div>
+<div class="paragraph">
+<p>Same issue if we can finally get rid of this try/catch structure (side note, that might soon be the case as we will see in the last part of this article).
+I would have to manually change all the Jenkinsfiles.</p>
+</div>
+<div class="paragraph">
+<p>With the Shared Libraries Plugin, I was able to enrich the DSL with our particular use case.
+In the library I wrote:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">//vars/notifiableBuild.groovy
+#!/usr/bin/groovy
+
+def call(body) {
+    try {
+        notify(start)
+        body()
+    	notify(success)
+    } catch(exception) {
+        notify(failure)
+    }
+}
+
+def notify(state) {
+    //notify scm
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And finally, in a Jenkinsfile, I end up writing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+notifiableBuild {
+    //put here all your pipeline
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To learn more about this, you should visit the <a href="https://jenkins.io/doc/book/pipeline/shared-libraries/">official documentation of the plugin</a>, which will help you getting started.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_experimental_corner">The Experimental Corner</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>In this part, I will share two projects you should keep an eye on as they should help a bit more spreading the usage of the pipelines.
+Note that the two projects are at a very early stage of development.</p>
+</div>
+<div class="sect2">
+<h3 id="_jenkins_blue_ocean_pipeline_editor_plugin">Jenkins Blue Ocean Pipeline Editor Plugin</h3>
+<div class="paragraph">
+<p><a href="https://github.com/jenkinsci/blueocean-pipeline-editor-plugin">This plugin</a> is using the <a href="https://jenkins.io/projects/blueocean/">Blue Ocean interface</a>.
+Side note, if you don&#8217;t know Blue Ocean, you should definitively have a look as it is far superior to the Jenkins 'classic' interface to display pipelines.
+Note that it is also work in progress (it is in a beta stage), but I use it in production everyday without any issue (except for the missing features of course).</p>
+</div>
+<div class="paragraph">
+<p>That being said, this new Pipeline Editor plugin proposes a new interface to graphically design your pipeline.
+This is at very alpha stage, but it was <a href="https://youtu.be/TsWkZLLU-s4?t=22m35s">demonstrated in the last Jenkins Meetup</a> (note that the rest of the meetup is also worth your time if you are into Jenkins) and seems very promising.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_declarative_pipeline">Declarative Pipeline</h3>
+<div class="paragraph">
+<p>The official name of this plugin is the <a href="https://github.com/jenkinsci/pipeline-model-definition-plugin">Pipeline Model Definition Plugin</a>.
+Its aim is to give a more config like touch to the pipeline.
+Code vs Config, here we are again (let&#8217;s not replay maven vs gradle and gulp vs grunt all over again&#8230;&#8203;)!
+Again, the plugin was <a href="https://youtu.be/TsWkZLLU-s4?t=27m35s">demoed in the last Jenkins Online Meetup</a>.
+The API does not seem stable for the moment, but some stuff seems very interesting.
+For instance, the notification issue I raised before could be adressed with something like:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-groovy" data-lang="groovy">#!/usr/bin/groovy
+
+post {
+    always {
+    }
+
+    success {
+    	notify(success)
+    }
+
+    failure {
+    	notify(failure)
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it for this post, do not hesitate to post any comment you might have!</p>
+</div>
+</div>
+</div>
+</div>
+          </div>
+          <footer class="post-footer">
+            <div itemprop="author" itemscope itemtype="http://schema.org/Person" class="post-author">
+                <a href="" class="post-author-avatar">
+                  <img itemprop="image" src="https://avatars.githubusercontent.com/u/9881659?v&#x3D;3" alt="Pierre Btz">
+                </a>
+              <div class="post-author-info">
+                <h4 class="post-footer-heading">Written By</h4>
+                <a href="" itemprop="url" class="post-author-name">
+                  <span itemprop="name">Pierre Btz</span>
+                </a>
+                <p itemprop="description" class="post-author-bio"></p>
+                <p class="post-info">
+                  <b class="post-info-title">Published on</b>
+                  <time class="post-date">January 17, 2017</time>
+                </p>
+              </div>
+            </div>
+            <div class="post-social">
+              <h4 class="post-footer-heading">Spread the word</h4>
+              <a href="#" data-action="share-twitter"><i class="fa fa-fw fa-lg fa-twitter"></i></a>
+              <a href="#" data-action="share-facebook"><i class="fa fa-fw fa-lg fa-facebook"></i></a>
+              <a href="#" data-action="share-gplus"><i class="fa fa-fw fa-lg fa-google-plus"></i></a>
+            </div>
+          </footer>
+        </section>
+      <section itemprop="comment" class="post-comments">
+        <div id="disqus_thread"></div>
+      </section>
+    </article>
+
+    <footer role="contentinfo" class="footer">
+      <p><small>Copyright &copy; <span itemprop="copyrightHolder">Pierre Beitz</span>. 2017. All Rights Reserved.</small></p>
+      <p><small><a href="http://ghostium.oswaldoacauan.com/" target="_blank">Ghostium Theme</a> by <a href="http://twitter.com/oswaldoacauan" target="_blank">@oswaldoacauan</a></small></p>
+      <p><small>Adapted by <a href="https://twitter.com/mgreau">Maxime Gréau</a></small></p>
+      <p><small>Published with <a href="http://hubpress.io">HubPress</a></small></p>
+    </footer>
+  </div>
+</section>
+
+
+<section class="post-comments">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+  var disqus_shortname = 'pierrebtz'; // required: replace example with your forum shortname
+  /* * * DON'T EDIT BELOW THIS LINE * * */
+  (function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</section>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment-with-locales.min.js?v="></script> <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js?v="></script> 
+      <script type="text/javascript">
+        jQuery( document ).ready(function() {
+          // change date with ago
+          jQuery('ago.ago').each(function(){
+            var element = jQuery(this).parent();
+            element.html( moment(element.text()).fromNow());
+          });
+        });
+
+        hljs.initHighlightingOnLoad();
+      </script>
+
+    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1484693352005"></script>
+
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-85059089-1', 'auto');
+    ga('send', 'pageview');
+
+    </script>
+
+  </body>
+</html>
