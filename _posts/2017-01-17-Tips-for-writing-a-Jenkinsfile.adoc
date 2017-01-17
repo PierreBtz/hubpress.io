@@ -76,6 +76,11 @@ The final part of the Pipeline Syntax page (circled in red in the screenshot) is
 
 Like for the GDSL, plugin sadly do not always support that page.
 
+### Best Practices
+
+CloudBees proposed a good article with https://www.cloudbees.com/blog/top-10-best-practices-jenkins-pipeline-plugin[ten best practices for Jenkins Pipeline Plugin].
+This should help you getting started on the right track.
+
 ## Organizing your pipeline
 
 With pipelines, you can (and you should!) now treat your build as you treat your code!
@@ -97,24 +102,107 @@ All our builds had to notify an SCM.
 The only way to correctly catch all the cases (build success, build error), was by building inside a try/catch block.
 So we ended up starting all our builds duplicating the following logic:
 
+[source, groovy]
+----
+#!/usr/bin/groovy
 
+try {
+	notify(start)
+    //put here all your pipeline
+    notify(success)
+} catch(exception) {
+	notify(failure)
+}
 
-During development of a pipeline, it's easy to make a typo in your Jenkinsfile and end up with an invalide Jenkisfile. This is a pain, as you lose time understanding the mistake, fix it, commit the fix and push it. The feedback loop is long, you lose time...
-Good news it that there are some ways to shorten this feedback loop.
-Create your pipeline from the UIob 
-You often don't need to directly write your pipeline in a Jenkinsfile (this should be your target though). You can just write it directly in the Jenkins UI by choosing Pipeline Script for your Pipeline Definition.
-Note that there are some stuff you will miss with method: checkout command (that you can emulate with a git command, and change later), operations on branches...
-Validate your pipeline before commiting
-Jenkins offers a linter for your Jenkinsfile. Maybe your pipeline won't work as expected, but at least it will be valid. Best way to use the linter is to the JenkinsCLI.
-You will need the Pipeline Model Definition﻿ version 0.7 at least:
-curl -O $jenkins_base_url/jnlpJars/jenkins-cli.jar
-java -jar jenkins-cli.jar -s $jenkins_base_url declarative-linter <Jenkinsfile
-Note that if you cannot update the Pipeline Model Definition plugin, you can still validate your Jenkinsfile via ssh or a wget﻿.
-Blue Ocean Pipeline Editor
-This stuff is at very alpha stage, it's fun but do not count too much on it...
-A new plugin﻿ is being developed based on Blue Ocean to design your pipeline in a very graphical manner. You can see a video in action here﻿. I would not recommend to use it for production work, but definitely worth keeping an eye on it.
+def notify(state) {
+	//notify scm
+}
+----
 
-Bonus: why not simplify the pipeline syntax?
-You might have noticed that the pipeline syntax is very verbose. You can already write libraries to wrap some of this verbosity, but the Declarative Pipeline plugin might also help you. Again, the plugin is under active development so if you play with it, be ready to update your build files when you update your plugins... If you wish to learn more about it, here is an introduction.
+As you can see, a lot of duplicated between the builds, with a huge maintenance problem.
+What is happening is the SCM API is changing for instance?
+I would need to iterate over all the pipelines to update the code of the notify function.
+Same issue if we can finally get rid of this try/catch structure (side note, that might soon be the case as we will see in the last part of this article).
+I would have to manually change all the Jenkinsfiles.
+
+With the Shared Libraries Plugin, I was able to enrich the DSL with our particular use case.
+In the library I wrote:
+
+[source, groovy]
+----
+//vars/notifiableBuild.groovy
+#!/usr/bin/groovy
+
+def call(body) {
+	try {
+		notify(start)
+    	body()
+    	notify(success)
+	} catch(exception) {
+		notify(failure)
+    }
+}
+
+def notify(state) {
+	//notify scm
+}
+----
+
+And finally, in a Jenkinsfile, I end up writing:
+
+[source, groovy]
+----
+#!/usr/bin/groovy
+
+notifiableBuild {
+	//put here all your pipeline
+}
+----
+
+To learn more about this, you should the https://jenkins.io/doc/book/pipeline/shared-libraries/[official documentation of the plugin], which will help you getting started.
+
+## The Experimental Corner
+
+In this part, I will share two projects you should keep an eye on as they should help a bit more spreading the usage of the pipelines.
+Note that the two projects are a very early stage of development.
+
+### Jenkins Blue Ocean Pipeline Editor Plugin
+
+https://github.com/jenkinsci/blueocean-pipeline-editor-plugin[This plugin] is using the https://jenkins.io/projects/blueocean/[Blue Ocean interface].
+Side note, if you don't know it, you should definitively have a look as it is far superior to the Jenkins 'classic' interface to display pipelines.
+Note that it is also work in progress (it is in a beta stage), but I use it in production everyday without any issue (except for the missing features of course).
+
+That being said, this new Pipeline Editor plugin is a new interface to graphically design your pipeline.
+This is at very alpha stage, but it was https://youtu.be/TsWkZLLU-s4?t=22m35s[demonstrated in the last Jenkins Meetup] (note that the rest of the meetup is also worth your time if you are into Jenkins).
+
+### Declarative Pipeline
+
+The official name of this plugin is the https://github.com/jenkinsci/pipeline-model-definition-plugin[Pipeline Model Definition Plugin].
+Its aim is to give a more config like touch to the pipeline.
+Code vs Config, here we are again (let's not replay maven vs gradle and gulp vs grunt all over again...)!
+Again, the plugin was https://youtu.be/TsWkZLLU-s4?t=27m35s[demoed in the last Jenkins Online Meetup].
+The API does not seem stable for the moment, but some stuff seems very intersting.
+For instance, the notification issue I raised before could be adressed with something like:
+
+[source, groovy]
+----
+#!/usr/bin/groovy
+
+post {
+	always {
+    	
+    }
+    
+    success {
+    	notify(success)
+    }
+    
+    failure {
+    	notify(failure)
+    }
+}
+----
+
+That's it for this post, do not hesitate to post any comment you might have!
 
 
