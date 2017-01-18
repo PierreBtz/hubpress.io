@@ -4,7 +4,7 @@
 :hp-tags: Jenkins, Jenkinsfile, Pipelines
 
 Jenkins Pipeline are great.
-They allow the developer to keep his pipeline and his build near its code.
+They allow the developer to keep their pipeline and their build near their code.
 
 But developing a Pipeline can quickly become cumbersome:
 
