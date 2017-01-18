@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 18 Jan 2017 09:35:51 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 18 Jan 2017 09:43:01 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Jenkins Pipeline are great.
-They allow the developer to keep his pipeline and his build near its code.</p>
+They allow the developer to keep their pipeline and their build near their code.</p>
 </div>
 <div class="paragraph">
 <p>But developing a Pipeline can quickly become cumbersome:</p>
