@@ -1,0 +1,198 @@
+# Dealing with CORS in a Development Environment: Use a reverse proxy
+
+
+:hp-image: http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/dealing-with-CORS.png
+:hp-tags: CORS, nginx, front-end development
+
+[quote]
+----
+No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://my-site' is therefore not allowed access
+----
+
+As a front end developer, there are chances you ended up with this message in your console quite a few time.
+This article will present a solution I used on both professional and personal developments to be able to deal with the CORS.
+It will also come back on other possible solutions I experimented but I was not satisfied with.
+
+## What is CORS anyway?
+
+### Same-origin policy
+
+The same-origin policy is a security implemented in browsers that makes sure that a web page A, served from a domain A cannot access ressources from another domain than domain A.
+For more details, heads to the https://www.w3.org/Security/wiki/Same_Origin_Policy[w3c wiki].
+
+### CORS
+
+CORS stands for Cross Origin Resource Sharing.
+They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible server or a compatible API.
+
+*This is not a security feature!*
+
+In fact, it relaxes a security feature.
+As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server or the API on the other side.
+You will understand in the second part why I split server and API.
+
+With the CORS mechanism, the browser automatically adds control headers to the request.
+Depending on the type of request it can also make a preflight request.
+Request will be successful if the server's answer contains a specific header allowing the domain.
+For more information, you might want to read https://www.eriwen.com/javascript/how-to-cors/[Making Cross-Domain Requests with CORS].
+
+## Issue for the front end developer
+
+Now, here is the issue: I'm developing a web application that needs to query a RESTful API.
+The issue is that this RESTful API is not allowing access to my domain (let's say http://localhost:4200 ).
+
+## Exploration of the first solutions
+
+### On the API Side
+
+Remember, when I presented the CORS I chose to split the server and the API.
+This is because CORS can be configured for the server or for the API.
+
+If I have a RESTful API developed with SpringBoot I can decide to set the CORS in SpringBoot using the @CrossOrigin annotation or using a Filter for instance.
+
+This method has several issues:
+
+* Purely development stuff lands near production code.
+There is a chance, somebody, sometimes, will activate the change in production.
+As most of the time, the configuration will be to set a header accepting any domain ("Access-Control-Allow-Origin", "*"), I will let you decide if this is a risk worth taking.
+
+* It implies that you have access to the code of the API.
+If it is a public API developped by a third party, then you cannot apply it.
+
+### On the Server Side
+
+The second 'server side' change is the server (serving your API) itself.
+You can most likely configure the server for CORS.
+
+A common scenario is that your server is behind a reverse proxy like nginx or haproxy.
+You can configure those reverse proxies for CORS.
+
+Again, this method suffers from the same downsides as before.
+
+## The development reverse proxy
+
+Now let's study a purely client solution.
+If we fire up a reverse proxy on our client, then we can hide both the web application and the RESTfull API behind it.
+The browser will then always see one domain, therefore the same origin policy will be honored and there won't be any CORS issue.
+
+This solution has the following advantages:
+
+* No modification of any code, the reverse proxy is a development tool like npm or maven.
+* No need to have access to any server, or to the code of the API running on the server.
+* In a lot of case, you are in fact in the same conditions as with your production environment which also has a reverse proxy.
+
+### Hands On!
+
+The solution relies on docker.
+It allows to run the reverse proxy as you would any tool.
+Of course, you could also use it without docker, but there is more work to make everything work...
+
+You only need two files, a configuration file and a startup script.
+We will use nginx, but you can do the same with any reverse proxy.
+
+#### Linux
+
+First file you'll need is the nginx configuration file, nginx.conf:
+
+[source]
+----
+events { 
+    worker_connections 1024; 
+}
+
+http {
+    server {
+        listen 80;
+
+        location /api {
+            proxy_pass http://127.0.0.1:8080/api/;
+        }
+
+        location / {
+            proxy_pass http://127.0.0.1:3000/;
+
+            # The following is for the websocket connection of the webpack dev server (https://gist.github.com/simongfxu/ea128160c296f31e41e6)
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+    }
+} 
+----
+
+Of course you'll need to adapt, this example is the one I use to develop a web application with a spring boot back end.
+The web application is served on port 3000.
+The back end is served on port 8080.
+What I'm telling nginx is that if the path of the request starts with /api, then the request should be sent to the backend, otherwise, it should be sent to the front end.
+The last section of the configuration is a special configuration I had to add so that the webpack dev server works correctly.
+
+Now, let's add a startup script:
+
+[source, bash]
+----
+#!/usr/bin/env bash
+
+docker run --rm --name dev-nginx -p 80:80 --net="host" -v $PWD/nginx.conf:/etc/nginx/nginx.conf:ro  nginx:1.11.8-alpine
+----
+
+With this script, we are telling docker to boot up a container based on a minimal official nginx image. 
+The configuration that nginx should use is bind mounted using the previous configuration file.
+The container is running on the same network stack as the host.
+Finally we are exposing the port 80.
+
+Once everything is set up, you can start up your front end server, your backend server and finally your reverse proxy.
+Then direct your browser to localhost and you should be able to work.
+
+#### OsX
+
+Sadly, the previous configuration won't work on OsX because basically the host mode of Docker is https://forums.docker.com/t/should-docker-run-net-host-work/14215/27[not working like on Linux].
+
+The fastest solution I found was to use my hostname instead of localhost in the nginx.conf:
+
+[source]
+----
+events { 
+    worker_connections 1024; 
+}
+
+http {
+    server {
+        listen 80;
+
+        location /api {
+            proxy_pass http://hostname:8080/api/;
+        }
+
+        location / {
+            proxy_pass http://hostname:3000/;
+
+            # The following is for the websocket connection of the webpack dev server (https://gist.github.com/simongfxu/ea128160c296f31e41e6)
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+    }
+} 
+----
+
+And the startup script is not using the host network mode:
+
+[source, bash]
+----
+#!/usr/bin/env bash
+
+docker run --rm --name dev-nginx -p 80:80 -v $PWD/nginx.conf:/etc/nginx/nginx.conf:ro  nginx:1.11.8-alpine
+----
+
+Note that this method also implies that your server can bind to your IP (as you are using localhost but your public interface).
+
+#### What about Windows?
+
+I did not have the opportunity to test either solution on Windows.
+I'll gladly edit this article with any feedback on Windows.
+
+That's it for this post.
+I hope it will help you configure your development environment.
+If you use any other method that you would like to share or discuss, please leave a comment!
