@@ -1,4 +1,4 @@
-# Dealing with CORS in a Development Environment: Use a reverse proxy
+# Dealing with CORS in a Development Environment Using a Reverse Proxy
 
 
 :hp-image: http://github.com/PierreBtz/pierrebtz.github.io/raw/master/images/dealing-with-CORS.png
@@ -9,7 +9,7 @@
 No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://my-site' is therefore not allowed access
 ----
 
-As a front end developer, there are chances you ended up with this message in your console quite a few time.
+As a front-end developer, there are chances you ended up with this message in your console quite a few time.
 This article will present a solution I used on both professional and personal developments to be able to deal with the CORS.
 It will also come back on other possible solutions I experimented but I was not satisfied with.
 
@@ -35,7 +35,7 @@ Depending on the type of request it can also make a preflight request.
 Request will be successful if the server's answer contains a specific header allowing the domain.
 For more information, you might want to read https://www.eriwen.com/javascript/how-to-cors/[Making Cross-Domain Requests with CORS].
 
-## Issue for the front end developer
+## Issue for the front-end developer
 
 Now, here is the issue: I'm developing a web application that needs to query a RESTful API.
 The issue is that this RESTful API is not allowing access to my domain (let's say http://localhost:4200 ).
