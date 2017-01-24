@@ -1,4 +1,263 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Wed, 18 Jan 2017 09:43:01 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 24 Jan 2017 22:32:17 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Dealing with CORS in a Development Environment: Use a reverse proxy]]></title><description><![CDATA[<div id="preamble">
+<div class="sectionbody">
+<div class="listingblock">
+<div class="content">
+<pre>No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://my-site' is therefore not allowed access</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As a front end developer, there are chances you ended up with this message in your console quite a few time.
+This article will present a solution I used on both professional and personal developments to be able to deal with the CORS.
+It will also come back on other possible solutions I experimented but I was not satisfied with.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_what_is_cors_anyway">What is CORS anyway?</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_same_origin_policy">Same-origin policy</h3>
+<div class="paragraph">
+<p>The same-origin policy is a security implemented in browsers that makes sure that a web page A, served from a domain A cannot access ressources from another domain than domain A.
+For more details, heads to the <a href="https://www.w3.org/Security/wiki/Same_Origin_Policy">w3c wiki</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cors">CORS</h3>
+<div class="paragraph">
+<p>CORS stands for Cross Origin Resource Sharing.
+They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible server or a compatible API.</p>
+</div>
+<div class="paragraph">
+<p><strong>This is not a security feature!</strong></p>
+</div>
+<div class="paragraph">
+<p>In fact, it relaxes a security feature.
+As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server or the API on the other side.
+You will understand in the second part why I split server and API.</p>
+</div>
+<div class="paragraph">
+<p>With the CORS mechanism, the browser automatically adds control headers to the request.
+Depending on the type of request it can also make a preflight request.
+Request will be successful if the server&#8217;s answer contains a specific header allowing the domain.
+For more information, you might want to read <a href="https://www.eriwen.com/javascript/how-to-cors/">Making Cross-Domain Requests with CORS</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_issue_for_the_front_end_developer">Issue for the front end developer</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now, here is the issue: I&#8217;m developing a web application that needs to query a RESTful API.
+The issue is that this RESTful API is not allowing access to my domain (let&#8217;s say <a href="http://localhost:4200" class="bare">http://localhost:4200</a> ).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_exploration_of_the_first_solutions">Exploration of the first solutions</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_on_the_api_side">On the API Side</h3>
+<div class="paragraph">
+<p>Remember, when I presented the CORS I chose to split the server and the API.
+This is because CORS can be configured for the server or for the API.</p>
+</div>
+<div class="paragraph">
+<p>If I have a RESTful API developed with SpringBoot I can decide to set the CORS in SpringBoot using the @CrossOrigin annotation or using a Filter for instance.</p>
+</div>
+<div class="paragraph">
+<p>This method has several issues:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Purely development stuff lands near production code.
+There is a chance, somebody, sometimes, will activate the change in production.
+As most of the time, the configuration will be to set a header accepting any domain ("Access-Control-Allow-Origin", "*"), I will let you decide if this is a risk worth taking.</p>
+</li>
+<li>
+<p>It implies that you have access to the code of the API.
+If it is a public API developped by a third party, then you cannot apply it.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_on_the_server_side">On the Server Side</h3>
+<div class="paragraph">
+<p>The second 'server side' change is the server (serving your API) itself.
+You can most likely configure the server for CORS.</p>
+</div>
+<div class="paragraph">
+<p>A common scenario is that your server is behind a reverse proxy like nginx or haproxy.
+You can configure those reverse proxies for CORS.</p>
+</div>
+<div class="paragraph">
+<p>Again, this method suffers from the same downsides as before.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_the_development_reverse_proxy">The development reverse proxy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Now let&#8217;s study a purely client solution.
+If we fire up a reverse proxy on our client, then we can hide both the web application and the RESTfull API behind it.
+The browser will then always see one domain, therefore the same origin policy will be honored and there won&#8217;t be any CORS issue.</p>
+</div>
+<div class="paragraph">
+<p>This solution has the following advantages:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>No modification of any code, the reverse proxy is a development tool like npm or maven.</p>
+</li>
+<li>
+<p>No need to have access to any server, or to the code of the API running on the server.</p>
+</li>
+<li>
+<p>In a lot of case, you are in fact in the same conditions as with your production environment which also has a reverse proxy.</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_hands_on">Hands On!</h3>
+<div class="paragraph">
+<p>The solution relies on docker.
+It allows to run the reverse proxy as you would any tool.
+Of course, you could also use it without docker, but there is more work to make everything work&#8230;&#8203;</p>
+</div>
+<div class="paragraph">
+<p>You only need two files, a configuration file and a startup script.
+We will use nginx, but you can do the same with any reverse proxy.</p>
+</div>
+<div class="sect3">
+<h4 id="_linux">Linux</h4>
+<div class="paragraph">
+<p>First file you&#8217;ll need is the nginx configuration file, nginx.conf:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 80;
+
+        location /api {
+            proxy_pass http://127.0.0.1:8080/api/;
+        }
+
+        location / {
+            proxy_pass http://127.0.0.1:3000/;
+
+            # The following is for the websocket connection of the webpack dev server (https://gist.github.com/simongfxu/ea128160c296f31e41e6)
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Of course you&#8217;ll need to adapt, this example is the one I use to develop a web application with a spring boot back end.
+The web application is served on port 3000.
+The back end is served on port 8080.
+What I&#8217;m telling nginx is that if the path of the request starts with /api, then the request should be sent to the backend, otherwise, it should be sent to the front end.
+The last section of the configuration is a special configuration I had to add so that the webpack dev server works correctly.</p>
+</div>
+<div class="paragraph">
+<p>Now, let&#8217;s add a startup script:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/usr/bin/env bash
+
+docker run --rm --name dev-nginx -p 80:80 --net="host" -v $PWD/nginx.conf:/etc/nginx/nginx.conf:ro  nginx:1.11.8-alpine</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>With this script, we are telling docker to boot up a container based on a minimal official nginx image.
+The configuration that nginx should use is bind mounted using the previous configuration file.
+The container is running on the same network stack as the host.
+Finally we are exposing the port 80.</p>
+</div>
+<div class="paragraph">
+<p>Once everything is set up, you can start up your front end server, your backend server and finally your reverse proxy.
+Then direct your browser to localhost and you should be able to work.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_osx">OsX</h4>
+<div class="paragraph">
+<p>Sadly, the previous configuration won&#8217;t work on OsX because basically the host mode of Docker is <a href="https://forums.docker.com/t/should-docker-run-net-host-work/14215/27">not working like on Linux</a>.</p>
+</div>
+<div class="paragraph">
+<p>The fastest solution I found was to use my hostname instead of localhost in the nginx.conf:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 80;
+
+        location /api {
+            proxy_pass http://hostname:8080/api/;
+        }
+
+        location / {
+            proxy_pass http://hostname:3000/;
+
+            # The following is for the websocket connection of the webpack dev server (https://gist.github.com/simongfxu/ea128160c296f31e41e6)
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And the startup script is not using the host network mode:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">#!/usr/bin/env bash
+
+docker run --rm --name dev-nginx -p 80:80 -v $PWD/nginx.conf:/etc/nginx/nginx.conf:ro  nginx:1.11.8-alpine</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that this method also implies that your server can bind to your IP (as you are using localhost but your public interface).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_what_about_windows">What about Windows?</h4>
+<div class="paragraph">
+<p>I did not have the opportunity to test either solution on Windows.
+I&#8217;ll gladly edit this article with any feedback on Windows.</p>
+</div>
+<div class="paragraph">
+<p>That&#8217;s it for this post.
+I hope it will help you configure your development environment.
+If you use any other method that you would like to share or discuss, please leave a comment!</p>
+</div>
+</div>
+</div>
+</div>
+</div>]]></description><link>https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Use-a-reverse-proxy.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Use-a-reverse-proxy.html</guid><category><![CDATA[CORS]]></category><category><![CDATA[ nginx]]></category><category><![CDATA[ front-end development]]></category><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Tue, 24 Jan 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Jenkins Pipeline are great.
