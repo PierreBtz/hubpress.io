@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 24 Jan 2017 22:44:14 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Dealing with CORS in a Development Environment: Use a reverse proxy]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 24 Jan 2017 22:47:40 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Dealing with CORS in a Development Environment Using a Reverse Proxy]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -6,7 +6,7 @@
 </div>
 </div>
 <div class="paragraph">
-<p>As a front end developer, there are chances you ended up with this message in your console quite a few time.
+<p>As a front-end developer, there are chances you ended up with this message in your console quite a few time.
 This article will present a solution I used on both professional and personal developments to be able to deal with the CORS.
 It will also come back on other possible solutions I experimented but I was not satisfied with.</p>
 </div>
@@ -45,7 +45,7 @@ For more information, you might want to read <a href="https://www.eriwen.com/jav
 </div>
 </div>
 <div class="sect1">
-<h2 id="_issue_for_the_front_end_developer">Issue for the front end developer</h2>
+<h2 id="_issue_for_the_front_end_developer">Issue for the front-end developer</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>Now, here is the issue: I&#8217;m developing a web application that needs to query a RESTful API.
@@ -251,7 +251,7 @@ If you use any other method that you would like to share or discuss, please leav
 </div>
 </div>
 </div>
-</div>]]></description><link>https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Use-a-reverse-proxy.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Use-a-reverse-proxy.html</guid><category><![CDATA[CORS]]></category><category><![CDATA[ nginx]]></category><category><![CDATA[ front-end development]]></category><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Tue, 24 Jan 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
+</div>]]></description><link>https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Using-a-Reverse-Proxy.html</link><guid isPermaLink="true">https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Using-a-Reverse-Proxy.html</guid><category><![CDATA[CORS]]></category><category><![CDATA[ nginx]]></category><category><![CDATA[ front-end development]]></category><dc:creator><![CDATA[Pierre Btz]]></dc:creator><pubDate>Tue, 24 Jan 2017 00:00:00 GMT</pubDate></item><item><title><![CDATA[Writing a Jenkinsfile: Tips and Tricks]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
 <p>Jenkins Pipeline are great.
