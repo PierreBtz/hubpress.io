@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 24 Jan 2017 22:32:17 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Dealing with CORS in a Development Environment: Use a reverse proxy]]></title><description><![CDATA[<div id="preamble">
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Pierre Beitz]]></title><description><![CDATA[Notepad of a Software Engineer]]></description><link>https://PierreBtz.github.io</link><generator>RSS for Node</generator><lastBuildDate>Tue, 24 Jan 2017 22:44:14 GMT</lastBuildDate><atom:link href="https://PierreBtz.github.io/rss/" rel="self" type="application/rss+xml"/><ttl>60</ttl><item><title><![CDATA[Dealing with CORS in a Development Environment: Use a reverse proxy]]></title><description><![CDATA[<div id="preamble">
 <div class="sectionbody">
 <div class="listingblock">
 <div class="content">
@@ -19,22 +19,21 @@ It will also come back on other possible solutions I experimented but I was not 
 <h3 id="_same_origin_policy">Same-origin policy</h3>
 <div class="paragraph">
 <p>The same-origin policy is a security implemented in browsers that makes sure that a web page A, served from a domain A cannot access ressources from another domain than domain A.
-For more details, heads to the <a href="https://www.w3.org/Security/wiki/Same_Origin_Policy">w3c wiki</a>.</p>
+For more details, head to the <a href="https://www.w3.org/Security/wiki/Same_Origin_Policy">w3c wiki</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_cors">CORS</h3>
 <div class="paragraph">
 <p>CORS stands for Cross Origin Resource Sharing.
-They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible server or a compatible API.</p>
+They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible reverse proxy or a compatible application.</p>
 </div>
 <div class="paragraph">
 <p><strong>This is not a security feature!</strong></p>
 </div>
 <div class="paragraph">
 <p>In fact, it relaxes a security feature.
-As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server or the API on the other side.
-You will understand in the second part why I split server and API.</p>
+As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server (reverse proxy or application) on the other side.</p>
 </div>
 <div class="paragraph">
 <p>With the CORS mechanism, the browser automatically adds control headers to the request.
@@ -58,10 +57,9 @@ The issue is that this RESTful API is not allowing access to my domain (let&#821
 <h2 id="_exploration_of_the_first_solutions">Exploration of the first solutions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_on_the_api_side">On the API Side</h3>
+<h3 id="_on_the_application_side">On the Application Side</h3>
 <div class="paragraph">
-<p>Remember, when I presented the CORS I chose to split the server and the API.
-This is because CORS can be configured for the server or for the API.</p>
+<p>CORS can be configured at the Application level (RESTful API in our case).</p>
 </div>
 <div class="paragraph">
 <p>If I have a RESTful API developed with SpringBoot I can decide to set the CORS in SpringBoot using the @CrossOrigin annotation or using a Filter for instance.</p>
@@ -84,11 +82,7 @@ If it is a public API developped by a third party, then you cannot apply it.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_on_the_server_side">On the Server Side</h3>
-<div class="paragraph">
-<p>The second 'server side' change is the server (serving your API) itself.
-You can most likely configure the server for CORS.</p>
-</div>
+<h3 id="_on_the_reverse_proxy_side">On the Reverse Proxy Side</h3>
 <div class="paragraph">
 <p>A common scenario is that your server is behind a reverse proxy like nginx or haproxy.
 You can configure those reverse proxies for CORS.</p>
