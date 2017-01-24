@@ -181,7 +181,7 @@ And the startup script is not using the host network mode:
 docker run --rm --name dev-nginx -p 80:80 -v $PWD/nginx.conf:/etc/nginx/nginx.conf:ro  nginx:1.11.8-alpine
 ----
 
-Note that this method also implies that your server can bind to your IP (as you are using localhost but your public interface).
+Note that this method also implies that your server can bind to your IP (as you are using not using localhost anymore).
 
 #### What about Windows?
 
