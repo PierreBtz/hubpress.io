@@ -38,9 +38,9 @@
     <link href="//fonts.googleapis.com/" rel="dns-prefetch">
     <link href="//fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic|Open+Sans:700,400&subset=latin,latin-ext" rel="stylesheet">
 
-    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/main.min.css?v=1485297137940"/>
-    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/custom.css?v=1485297137940"/>
-    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1485297137940"/>
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/main.min.css?v=1485297854182"/>
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/custom.css?v=1485297854182"/>
+    <link rel="stylesheet" href="//PierreBtz.github.io/themes/ghostium/assets/css/asciidoctor-foundation.css?v=1485297854182"/>
 
 
 
@@ -70,7 +70,7 @@
       GHOSTIUM.enablePjax = typeof enable_pjax !== 'undefined' ? enable_pjax : true;
     </script>
 
-    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1485297137940"></script>
+    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/head-scripts.min.js?v=1485297854182"></script>
 
     <link rel="canonical" href="https://PierreBtz.github.io/2017/01/24/Dealing-with-CORS-in-a-Development-Environment-Use-a-reverse-proxy.html" />
     <meta name="referrer" content="origin" />
@@ -204,22 +204,21 @@ It will also come back on other possible solutions I experimented but I was not 
 <h3 id="_same_origin_policy">Same-origin policy</h3>
 <div class="paragraph">
 <p>The same-origin policy is a security implemented in browsers that makes sure that a web page A, served from a domain A cannot access ressources from another domain than domain A.
-For more details, heads to the <a href="https://www.w3.org/Security/wiki/Same_Origin_Policy">w3c wiki</a>.</p>
+For more details, head to the <a href="https://www.w3.org/Security/wiki/Same_Origin_Policy">w3c wiki</a>.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_cors">CORS</h3>
 <div class="paragraph">
 <p>CORS stands for Cross Origin Resource Sharing.
-They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible server or a compatible API.</p>
+They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible reverse proxy or a compatible application.</p>
 </div>
 <div class="paragraph">
 <p><strong>This is not a security feature!</strong></p>
 </div>
 <div class="paragraph">
 <p>In fact, it relaxes a security feature.
-As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server or the API on the other side.
-You will understand in the second part why I split server and API.</p>
+As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server (reverse proxy or application) on the other side.</p>
 </div>
 <div class="paragraph">
 <p>With the CORS mechanism, the browser automatically adds control headers to the request.
@@ -243,10 +242,9 @@ The issue is that this RESTful API is not allowing access to my domain (let&#821
 <h2 id="_exploration_of_the_first_solutions">Exploration of the first solutions</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_on_the_api_side">On the API Side</h3>
+<h3 id="_on_the_application_side">On the Application Side</h3>
 <div class="paragraph">
-<p>Remember, when I presented the CORS I chose to split the server and the API.
-This is because CORS can be configured for the server or for the API.</p>
+<p>CORS can be configured at the Application level (RESTful API in our case).</p>
 </div>
 <div class="paragraph">
 <p>If I have a RESTful API developed with SpringBoot I can decide to set the CORS in SpringBoot using the @CrossOrigin annotation or using a Filter for instance.</p>
@@ -269,11 +267,7 @@ If it is a public API developped by a third party, then you cannot apply it.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_on_the_server_side">On the Server Side</h3>
-<div class="paragraph">
-<p>The second 'server side' change is the server (serving your API) itself.
-You can most likely configure the server for CORS.</p>
-</div>
+<h3 id="_on_the_reverse_proxy_side">On the Reverse Proxy Side</h3>
 <div class="paragraph">
 <p>A common scenario is that your server is behind a reverse proxy like nginx or haproxy.
 You can configure those reverse proxies for CORS.</p>
@@ -518,7 +512,7 @@ If you use any other method that you would like to share or discuss, please leav
         hljs.initHighlightingOnLoad();
       </script>
 
-    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1485297137940"></script>
+    <script src="//PierreBtz.github.io/themes/ghostium/assets/js/foot-scripts.min.js?v=1485297854182"></script>
 
     <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
