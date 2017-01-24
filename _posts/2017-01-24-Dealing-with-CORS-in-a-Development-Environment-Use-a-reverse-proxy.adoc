@@ -18,18 +18,17 @@ It will also come back on other possible solutions I experimented but I was not 
 ### Same-origin policy
 
 The same-origin policy is a security implemented in browsers that makes sure that a web page A, served from a domain A cannot access ressources from another domain than domain A.
-For more details, heads to the https://www.w3.org/Security/wiki/Same_Origin_Policy[w3c wiki].
+For more details, head to the https://www.w3.org/Security/wiki/Same_Origin_Policy[w3c wiki].
 
 ### CORS
 
 CORS stands for Cross Origin Resource Sharing.
-They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible server or a compatible API.
+They allow a CORS compatible browser (any modern browser) to make cross domain requests to a compatible reverse proxy or a compatible application.
 
 *This is not a security feature!*
 
 In fact, it relaxes a security feature.
-As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server or the API on the other side.
-You will understand in the second part why I split server and API.
+As you might have noticed, both ends of the channel need to be compatible: the browser on one side, the server (reverse proxy or application) on the other side.
 
 With the CORS mechanism, the browser automatically adds control headers to the request.
 Depending on the type of request it can also make a preflight request.
@@ -43,10 +42,9 @@ The issue is that this RESTful API is not allowing access to my domain (let's sa
 
 ## Exploration of the first solutions
 
-### On the API Side
+### On the Application Side
 
-Remember, when I presented the CORS I chose to split the server and the API.
-This is because CORS can be configured for the server or for the API.
+CORS can be configured at the Application level (RESTful API in our case).
 
 If I have a RESTful API developed with SpringBoot I can decide to set the CORS in SpringBoot using the @CrossOrigin annotation or using a Filter for instance.
 
@@ -59,10 +57,7 @@ As most of the time, the configuration will be to set a header accepting any dom
 * It implies that you have access to the code of the API.
 If it is a public API developped by a third party, then you cannot apply it.
 
-### On the Server Side
-
-The second 'server side' change is the server (serving your API) itself.
-You can most likely configure the server for CORS.
+### On the Reverse Proxy Side
 
 A common scenario is that your server is behind a reverse proxy like nginx or haproxy.
 You can configure those reverse proxies for CORS.
